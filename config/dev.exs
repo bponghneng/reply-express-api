@@ -3,8 +3,8 @@ import Config
 # Configure your database
 config :reply_express, ReplyExpress.Repo,
   username: "postgres",
-  password: System.get_env("DB_PASS", "postgres"),
-  hostname: System.get_env("DB_HOST", "localhost"),
+  password: System.get_env("DATABASE_PASSWORD"),
+  hostname: System.get_env("DATABASE_HOST"),
   database: "reply_express_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
