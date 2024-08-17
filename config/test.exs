@@ -7,8 +7,8 @@ import Config
 # Run `mix help test` for more information.
 config :reply_express, ReplyExpress.Repo,
   username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
+  password: System.get_env("DB_PASS", "postgres"),
+  hostname: System.get_env("DB_HOST", "localhost"),
   database: "reply_express_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
