@@ -1,5 +1,7 @@
 defmodule ReplyExpress.Accounts.UserTokens do
-  alias ReplyExpress.Accounts
+  @moduledoc """
+    Service module to look up users by way of bearer tokens
+  """
   alias ReplyExpress.Accounts.UserToken
   alias ReplyExpress.Repo
 
