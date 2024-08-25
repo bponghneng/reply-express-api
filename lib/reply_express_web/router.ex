@@ -1,12 +1,11 @@
 defmodule ReplyExpressWeb.Router do
   use ReplyExpressWeb, :router
 
+  import ReplyExpressWeb.UserAuth
+
   pipeline :api do
     plug :accepts, ["json"]
-  end
-
-  scope "/api", ReplyExpressWeb do
-    pipe_through :api
+    plug :fetch_current_user
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
@@ -24,5 +23,32 @@ defmodule ReplyExpressWeb.Router do
       live_dashboard "/dashboard", metrics: ReplyExpressWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+  end
+
+  scope "/api/v1", ReplyExpressWeb.API.V1 do
+    pipe_through :api
+
+    # User email confirmation
+    post "/users/confirm/:token", UserConfirmationController, :update
+  end
+
+  scope path: "/api/v1", alias: ReplyExpressWeb.API.V1 do
+    pipe_through [:api, :require_authenticated_user]
+
+    # Incoming email
+    post "/inbound", InboundController, :create
+
+    # User authentication
+    delete "/users/log_out", UserSessionController, :delete
+  end
+
+  scope path: "/api/v1", alias: ReplyExpressWeb.API.V1 do
+    pipe_through [:api, :forbid_authenticated_user]
+
+    # User authentication
+    post "/users/log_in", UserSessionController, :create
+
+    # User registration
+    post "/users/register", UserRegistrationController, :create
   end
 end

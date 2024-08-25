@@ -32,19 +32,27 @@ defmodule ReplyExpress.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bandit, "~> 1.5"},
+      {:commanded, "~> 1.4"},
+      {:commanded_extreme_adapter, "~> 1.1"},
+      {:dns_cluster, "~> 0.1.1"},
+      {:ecto_sql, "~> 3.10"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_sqs, "~> 3.3"},
+      {:finch, "~> 0.13"},
+      {:gen_smtp, "~> 1.1"},
+      {:gettext, "~> 0.20"},
+      {:hackney, "~> 1.20"},
+      {:jason, "~> 1.2"},
+      {:pbkdf2_elixir, "~> 2.0"},
       {:phoenix, "~> 1.7.14"},
       {:phoenix_ecto, "~> 4.5"},
-      {:ecto_sql, "~> 3.10"},
-      {:postgrex, ">= 0.0.0"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
+      {:postgrex, ">= 0.0.0"},
       {:swoosh, "~> 1.5"},
-      {:finch, "~> 0.13"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.20"},
-      {:jason, "~> 1.2"},
-      {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:tesla, "~> 1.12"}
     ]
   end
 

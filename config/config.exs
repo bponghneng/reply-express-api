@@ -22,6 +22,25 @@ config :reply_express, ReplyExpressWeb.Endpoint,
   pubsub_server: ReplyExpress.PubSub,
   live_view: [signing_salt: "j6xTheEQ"]
 
+# Configures CQRS
+config :reply_express, ReplyExpress.Commanded,
+  event_store: [
+    adapter: Commanded.EventStore.Adapters.Extreme,
+    serializer: Commanded.Serialization.JsonSerializer,
+    stream_prefix: "re",
+    extreme: [
+      db_type: :node,
+      host: "localhost",
+      port: 1113,
+      username: "admin",
+      password: "changeit",
+      reconnect_delay: 2_000,
+      max_attempts: :infinity
+    ]
+  ],
+  pubsub: :local,
+  registry: :local
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
