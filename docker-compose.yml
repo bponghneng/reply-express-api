@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16.4
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "5432:5432"
+    restart: always
+    shm_size: 128mb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  esdb-node:
+    image: eventstore/eventstore:lts
+    environment:
+      - EVENTSTORE_CLUSTER_SIZE=1
+      - EVENTSTORE_RUN_PROJECTIONS=All
+      - EVENTSTORE_START_STANDARD_PROJECTIONS=True
+      - EVENTSTORE_DB=/var/lib/eventstore-data
+      - EVENTSTORE_INDEX=/var/lib/eventstore-index
+      - EVENTSTORE_LOG=/var/log/eventstore
+      - EVENTSTORE_EXT_TCP_PORT=1113
+      - EVENTSTORE_EXT_HTTP_PORT=2113
+    ports:
+      - "1113:1113"
+      - "2113:2113"
+    volumes:
+      - type: volume
+        source: eventstore-data
+        target: /var/lib/eventstore-data
+      - type: volume
+        source: eventstore-index
+        target: /var/lib/eventstore-index
+      - type: volume
+        source: eventstore-logs
+        target: /var/log/eventstore
+
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    image: localstack/localstack-pro
+    ports:
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4510-4559:4510-4559"
+    environment:
+      DEBUG: ${DEBUG}
+      LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN}
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  mailhog:
+    environment:
+      MH_OUTGOING_SMTP: ./outgoing-smtp.json
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - 1025:1025
+      - 8025:8025
+
+  web:
+    build: ./resources/docker/Dockerfile
+    command:
+      - ./resources/docker/run.sh
+    depends_on:
+      - db
+    environment:
+      PGPASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: db
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+
+volumes:
+  eventstore-data:
+  eventstore-index:
+  eventstore-logs:
+  postgres-data:
