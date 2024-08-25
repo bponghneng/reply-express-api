@@ -1,0 +1,11 @@
+{
+  "replyExpressAPI": {
+    "name": "replyExpressAPI",
+    "host": "localhost",
+    "port": "587",
+    "email": "dev@replyexpress.local",
+    "username": "dev",
+    "password": "password",
+    "mechanism": "PLAIN"
+  }
+}

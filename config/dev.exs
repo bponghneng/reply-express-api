@@ -3,8 +3,8 @@ import Config
 # Configure your database
 config :reply_express, ReplyExpress.Repo,
   username: "postgres",
-  password: System.get_env("DATABASE_PASSWORD"),
-  hostname: System.get_env("DATABASE_HOST"),
+  password: System.get_env("DATABASE_PASSWORD", "password"),
+  hostname: System.get_env("DATABASE_HOST", "localhost"),
   database: "reply_express_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
@@ -22,7 +22,7 @@ config :reply_express, ReplyExpressWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
   code_reloader: true,
-  debug_errors: true,
+  debug_errors: false,
   secret_key_base: "mhlNKAffENddCN5u5mSJONhXJc7pTpRF8PhH6nXpKjCHM/kNmem6IfeYtFmW0F9o",
   watchers: []
 
@@ -64,3 +64,14 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Uncomment to use MailHog instead of Plug.Swoosh.MailboxPreview
+# config :reply_express, ReplyExpress.Mailer,
+#  adapter: Swoosh.Adapters.SMTP,
+#  relay: "localhost",
+#  username: "dev",
+#  password: "password",
+#  auth: :always,
+#  port: 1025,
+#  retries: 2,
+#  no_mx_lookups: false
