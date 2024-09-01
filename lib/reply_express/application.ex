@@ -10,6 +10,10 @@ defmodule ReplyExpress.Application do
     children = [
       ReplyExpressWeb.Telemetry,
       ReplyExpress.Repo,
+      # Commanded application
+      ReplyExpress.Commanded,
+      # Accounts projector
+      ReplyExpress.Accounts.Supervisor,
       {DNSCluster, query: Application.get_env(:reply_express, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ReplyExpress.PubSub},
       # Start the Finch HTTP client for sending emails

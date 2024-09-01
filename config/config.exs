@@ -9,6 +9,7 @@ import Config
 
 config :reply_express,
   ecto_repos: [ReplyExpress.Repo],
+  event_stores: [ReplyExpress.EventStore],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
@@ -25,21 +26,15 @@ config :reply_express, ReplyExpressWeb.Endpoint,
 # Configures CQRS
 config :reply_express, ReplyExpress.Commanded,
   event_store: [
-    adapter: Commanded.EventStore.Adapters.Extreme,
-    serializer: Commanded.Serialization.JsonSerializer,
-    stream_prefix: "re",
-    extreme: [
-      db_type: :node,
-      host: "localhost",
-      port: 1113,
-      username: "admin",
-      password: "changeit",
-      reconnect_delay: 2_000,
-      max_attempts: :infinity
-    ]
+    adapter: Commanded.EventStore.Adapters.EventStore,
+    event_store: ReplyExpress.EventStore
   ],
-  pubsub: :local,
+  pub_sub: :local,
   registry: :local
+
+config :reply_express, ReplyExpress.EventStore, serializer: Commanded.Serialization.JsonSerializer
+
+config :commanded, event_store_adapter: Commanded.EventStore.Adapters.EventStore
 
 # Configures the mailer
 #

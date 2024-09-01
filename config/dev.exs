@@ -10,6 +10,14 @@ config :reply_express, ReplyExpress.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :reply_express, ReplyExpress.EventStore,
+  serializer: Commanded.Serialization.JsonSerializer,
+  username: "postgres",
+  password: System.get_env("DATABASE_PASSWORD", "password"),
+  hostname: System.get_env("DATABASE_HOST", "localhost"),
+  database: "eventstore_dev",
+  pool_size: 10
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
