@@ -31,8 +31,15 @@ defmodule ReplyExpressWeb.ConnCase do
     end
   end
 
-  setup tags do
-    ReplyExpress.DataCase.setup_sandbox(tags)
+  setup do
+    {:ok, _} = Application.ensure_all_started(:reply_express)
+
+    on_exit(fn ->
+      :ok = Application.stop(:reply_express)
+
+      ReplyExpress.Storage.reset!()
+    end)
+
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

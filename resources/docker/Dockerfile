@@ -9,4 +9,3 @@ RUN mix local.hex --force \
 
 WORKDIR /app
 EXPOSE 4000
-CMD ["./run.sh"]

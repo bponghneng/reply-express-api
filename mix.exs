@@ -34,12 +34,13 @@ defmodule ReplyExpress.MixProject do
     [
       {:bandit, "~> 1.5"},
       {:commanded, "~> 1.4"},
-      {:commanded_extreme_adapter, "~> 1.1"},
+      {:commanded_ecto_projections, "~> 1.4"},
+      {:commanded_eventstore_adapter, "~> 1.4"},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_sqs, "~> 3.3"},
-      {:ex_machina, "~> 2.8.0", only: :test},
+      {:exconstructor, "~> 1.2.11"},
       {:finch, "~> 0.13"},
       {:gen_smtp, "~> 1.1"},
       {:gettext, "~> 0.20"},
@@ -53,7 +54,8 @@ defmodule ReplyExpress.MixProject do
       {:swoosh, "~> 1.5"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:tesla, "~> 1.12"}
+      {:tesla, "~> 1.12"},
+      {:vex, "~> 0.9"}
     ]
   end
 
@@ -68,6 +70,8 @@ defmodule ReplyExpress.MixProject do
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "eventstore.reset": ["event_store.drop -e ReplyExpress.EventStore", "eventstore.setup"],
+      "eventstore.setup": ["event_store.create", "event_store.init"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end

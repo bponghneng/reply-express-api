@@ -4,6 +4,7 @@ defmodule ReplyExpressWeb.API.V1.FallbackController do
   alias Ecto.Changeset
   alias ReplyExpressWeb.API.V1.ErrorJSON
   alias ReplyExpressWeb.API.V1.ChangesetJSON
+  alias ReplyExpressWeb.API.V1.CommandValidationErrorJSON
 
   def call(conn, {:error, :not_found}) do
     conn
@@ -24,5 +25,14 @@ defmodule ReplyExpressWeb.API.V1.FallbackController do
     |> put_status(:unprocessable_entity)
     |> put_view(json: ChangesetJSON)
     |> render(:error, changeset: changeset)
+  end
+
+  def call(conn, {:command_validation_error, _} = error) do
+    {_, validation_errors} = error
+
+    conn
+    |> put_status(:unprocessable_entity)
+    |> put_view(json: CommandValidationErrorJSON)
+    |> render(:errors, errors: validation_errors)
   end
 end
