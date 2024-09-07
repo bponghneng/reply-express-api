@@ -2,11 +2,14 @@ defmodule ReplyExpress.Repo.Migrations.CreateUsers do
   use Ecto.Migration
 
   def change do
-    create table(:users, primary_key: false) do
-      add :uuid, :uuid
+    execute "CREATE EXTENSION IF NOT EXISTS citext", ""
+
+    create table(:users) do
       add :confirmed_at, :utc_datetime
       add :email, :string
       add :hashed_password, :string
+      add :logged_in_at, :utc_datetime
+      add :uuid, :uuid
 
       timestamps()
     end

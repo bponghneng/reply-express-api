@@ -6,7 +6,7 @@ defmodule ReplyExpressWeb.API.V1.CommandValidationErrorJSONTest do
   describe "error/1" do
     test "renders error with string message" do
       message = "has already been taken"
-      errors = [{:error, :email, :by, message}]
+      errors = %{email: [message]}
 
       assert CommandValidationErrorJSON.errors(%{errors: errors}) == %{
                errors: %{email: [message]}
@@ -16,9 +16,7 @@ defmodule ReplyExpressWeb.API.V1.CommandValidationErrorJSONTest do
     test "renders error with keyword list message" do
       message = "must be at least 8 characters"
 
-      errors = [
-        {:error, :password, :length, [message: "must be at least 8 characters"]}
-      ]
+      errors = %{password: [[message: message]]}
 
       assert CommandValidationErrorJSON.errors(%{errors: errors}) == %{
                errors: %{password: [message]}

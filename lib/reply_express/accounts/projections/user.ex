@@ -5,13 +5,14 @@ defmodule ReplyExpress.Accounts.Projections.User do
 
   use Ecto.Schema
 
-  @primary_key {:uuid, :binary_id, autogenerate: false}
   @timestamps_opts [type: :utc_datetime_usec]
 
   schema "users" do
-    field(:confirmed_at, :utc_datetime)
-    field(:email, :string)
-    field(:hashed_password, :string)
+    field :confirmed_at, :utc_datetime
+    field :email, :string
+    field :hashed_password, :string
+    field :logged_in_at, :utc_datetime
+    field :uuid, :binary_id
 
     timestamps()
   end

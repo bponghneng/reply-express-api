@@ -1,27 +1,27 @@
 defmodule ReplyExpress.Storage do
-  alias EventStore.Storage.Initializer
-  alias ReplyExpress.EventStore
-
   @doc """
-  Clear the event store and read store databases
+  Reset the event store and read store databases.
   """
   def reset! do
-    reset_eventstore()
-    reset_readstore()
+    :ok = Application.stop(:reply_express)
+
+    reset_eventstore!()
+    reset_readstore!()
+
+    {:ok, _} = Application.ensure_all_started(:reply_express)
   end
 
-  defp reset_eventstore do
-    config = EventStore.config()
+  defp reset_eventstore! do
+    {:ok, conn} =
+      ReplyExpress.EventStore.config()
+      |> EventStore.Config.default_postgrex_opts()
+      |> Postgrex.start_link()
 
-    {:ok, conn} = Postgrex.start_link(config)
-
-    Initializer.reset!(conn, config)
+    EventStore.Storage.Initializer.reset!(conn, ReplyExpress.EventStore.config())
   end
 
-  defp reset_readstore do
-    config = Application.get_env(:reply_express, ReplyExpress.Repo)
-
-    {:ok, conn} = Postgrex.start_link(config)
+  defp reset_readstore! do
+    {:ok, conn} = Postgrex.start_link(ReplyExpress.Repo.config())
 
     Postgrex.query!(conn, truncate_readstore_tables(), [])
   end
@@ -29,8 +29,9 @@ defmodule ReplyExpress.Storage do
   defp truncate_readstore_tables do
     """
     TRUNCATE TABLE
+      projection_versions,
       users,
-      projection_versions
+      user_tokens
     RESTART IDENTITY
     CASCADE;
     """

@@ -6,7 +6,7 @@ defmodule ReplyExpress.Accounts.Validators.UniqueEmail do
   use Vex.Validator
 
   alias ReplyExpress.Accounts
-  alias ReplyExpress.Accounts.Projections.User
+  alias ReplyExpress.Accounts.Projections.User, as: UserProjection
 
   @doc """
   Returns an error tuple with message if a user registration exists for the email and `:ok` if not
@@ -20,7 +20,7 @@ defmodule ReplyExpress.Accounts.Validators.UniqueEmail do
 
   defp email_registered?(email) do
     case Accounts.user_by_email(email) do
-      %User{} -> true
+      %UserProjection{} -> true
       nil -> false
       _ -> true
     end

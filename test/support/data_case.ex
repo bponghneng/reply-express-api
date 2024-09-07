@@ -20,22 +20,17 @@ defmodule ReplyExpress.DataCase do
     quote do
       alias ReplyExpress.Repo
 
+      import Commanded.Assertions.EventAssertions
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import ReplyExpress.DataCase
-      import Commanded.Assertions.EventAssertions
+      import ReplyExpress.Factory
     end
   end
 
   setup do
-    {:ok, _} = Application.ensure_all_started(:reply_express)
-
-    on_exit(fn ->
-      :ok = Application.stop(:reply_express)
-
-      ReplyExpress.Storage.reset!()
-    end)
+    ReplyExpress.Storage.reset!()
 
     :ok
   end

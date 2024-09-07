@@ -1,5 +1,5 @@
 defmodule ReplyExpressWeb.UserRegistrationControllerTest do
-  use ReplyExpressWeb.ConnCase, async: true
+  use ReplyExpressWeb.ConnCase
 
   describe "POST /api/v1/users/register" do
     test "registers new user account", context do
@@ -22,9 +22,9 @@ defmodule ReplyExpressWeb.UserRegistrationControllerTest do
         post(context.conn, ~p"/api/v1/users/register", %{
           "user" => %{email: invalid_email, password: invalid_password}
         })
-        |> json_response(200)
+        |> json_response(422)
 
-      assert response["data"]["email"] == invalid_email
+      assert response["errors"]["email"] == ["is invalid"]
     end
   end
 end

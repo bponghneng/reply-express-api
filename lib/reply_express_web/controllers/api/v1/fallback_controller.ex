@@ -27,8 +27,8 @@ defmodule ReplyExpressWeb.API.V1.FallbackController do
     |> render(:error, changeset: changeset)
   end
 
-  def call(conn, {:command_validation_error, _} = error) do
-    {_, validation_errors} = error
+  def call(conn, {:error, :validation_failure, _} = error) do
+    {_, _, validation_errors} = error
 
     conn
     |> put_status(:unprocessable_entity)

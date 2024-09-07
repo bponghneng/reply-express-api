@@ -4,18 +4,35 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   """
 
   alias ReplyExpress.Accounts.Aggregates.User
+  alias ReplyExpress.Accounts.Commands.CreateUserSessionToken
+  alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Events.UserLoggedIn
   alias ReplyExpress.Accounts.Events.UserRegistered
+  alias ReplyExpress.Accounts.Events.UserSessionTokenCreated
 
   defstruct [
-    :uuid,
     :email,
-    :hashed_password
+    :hashed_password,
+    :logged_in_at,
+    :uuid
   ]
 
-  @doc """
-  Register a new user
-  """
+  def execute(%User{uuid: nil}, %CreateUserSessionToken{} = create_user_session_token) do
+    %UserSessionTokenCreated{
+      token: create_user_session_token.token,
+      user_uuid: create_user_session_token.user_uuid
+    }
+  end
+
+  def execute(%User{uuid: nil}, %LogInUser{} = login) do
+    %UserLoggedIn{
+      credentials: login.credentials,
+      logged_in_at: login.logged_in_at,
+      uuid: login.uuid
+    }
+  end
+
   def execute(%User{uuid: nil}, %RegisterUser{} = register) do
     %UserRegistered{
       uuid: register.uuid,
@@ -25,9 +42,10 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   end
 
   # Mutators
-  @doc """
-    UserRegistered: Initial state of user
-  """
+  def apply(%User{} = user, %UserLoggedIn{} = logged_in) do
+    %User{user | logged_in_at: logged_in.logged_in_at, uuid: logged_in.uuid}
+  end
+
   def apply(%User{} = user, %UserRegistered{} = registered) do
     %User{
       user
@@ -36,4 +54,6 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
         hashed_password: registered.hashed_password
     }
   end
+
+  def apply(%User{} = user, _event), do: user
 end
