@@ -12,7 +12,6 @@ defmodule ReplyExpress.Accounts.Commands.RegisterUser do
   use Vex.Struct
 
   alias ReplyExpress.Accounts.Commands.RegisterUser
-  alias ReplyExpress.Auth
   alias ReplyExpress.Accounts.Validators.UniqueEmail
   alias Vex.ErrorRenderers.Parameterized
 
@@ -54,7 +53,7 @@ defmodule ReplyExpress.Accounts.Commands.RegisterUser do
     %RegisterUser{
       register_user
       | password: password,
-        hashed_password: Auth.hash_password(password)
+        hashed_password: Pbkdf2.hash_pwd_salt(password)
     }
   end
 end

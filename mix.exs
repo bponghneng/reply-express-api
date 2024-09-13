@@ -38,9 +38,11 @@ defmodule ReplyExpress.MixProject do
       {:commanded_eventstore_adapter, "~> 1.4"},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
+      {:elixir_uuid, "~> 1.2"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_sqs, "~> 3.3"},
       {:exconstructor, "~> 1.2.11"},
+      {:ex_machina, "~> 2.8.0", only: :test},
       {:finch, "~> 0.13"},
       {:gen_smtp, "~> 1.1"},
       {:gettext, "~> 0.20"},
@@ -55,6 +57,7 @@ defmodule ReplyExpress.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:tesla, "~> 1.12"},
+      {:timex, "~> 3.0"},
       {:vex, "~> 0.9"}
     ]
   end

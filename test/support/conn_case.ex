@@ -28,17 +28,12 @@ defmodule ReplyExpressWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import ReplyExpressWeb.ConnCase
+      import ReplyExpress.Factory
     end
   end
 
   setup do
-    {:ok, _} = Application.ensure_all_started(:reply_express)
-
-    on_exit(fn ->
-      :ok = Application.stop(:reply_express)
-
-      ReplyExpress.Storage.reset!()
-    end)
+    ReplyExpress.Storage.reset!()
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end

@@ -1,13 +1,13 @@
 defmodule ReplyExpress.API.V1.UserRegistrationJSONTest do
-  use ReplyExpressWeb.ConnCase, async: true
+  use ReplyExpressWeb.ConnCase
 
-  import ReplyExpress.Factories
+  import ReplyExpress.Factory
 
   alias ReplyExpressWeb.API.V1.UserRegistrationJSON
 
   describe "show/1" do
     test "renders registered user data" do
-      user = build(:user) |> set_user_password("password1234") |> insert()
+      user = build(:user_projection) |> set_user_projection_password("password1234") |> insert()
 
       expected = %{
         data: %{

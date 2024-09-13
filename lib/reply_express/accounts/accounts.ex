@@ -6,16 +6,51 @@ defmodule ReplyExpress.Accounts do
   import Ecto.Query, warn: false
 
   alias ReplyExpress.Repo
+  alias ReplyExpress.Accounts.Commands.CreateUserSessionToken
+  alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Queries.UserByEmail
+  alias ReplyExpress.Accounts.Queries.UserByUUID
   alias ReplyExpress.Commanded
+
+  @doc """
+  Authenticates a user.
+  """
+  def log_in_user(attrs) do
+    log_in_user =
+      attrs
+      |> LogInUser.new()
+      |> LogInUser.build_credentials()
+      |> LogInUser.set_logged_in_at()
+      |> LogInUser.set_uuid()
+
+    create_session_token =
+      log_in_user
+      |> Map.from_struct()
+      |> Map.take([:logged_in_at])
+      |> CreateUserSessionToken.new()
+      |> CreateUserSessionToken.build_session_token()
+      |> CreateUserSessionToken.set_user_uuid(log_in_user.uuid)
+      |> dbg()
+
+    with :ok <- Commanded.dispatch(log_in_user, consistency: :strong),
+         :ok <- Commanded.dispatch(create_session_token, consistency: :strong) do
+      case user_by_email(attrs.email) do
+        nil ->
+          {:error, :not_found}
+
+        projection ->
+          {:ok, projection}
+      end
+    end
+  end
 
   @doc """
   Registers a user.
   """
   def register_user(attrs) do
-    uuid = Ecto.UUID.generate()
+    uuid = UUID.uuid4()
 
     register_user =
       attrs
@@ -24,14 +59,19 @@ defmodule ReplyExpress.Accounts do
       |> RegisterUser.downcase_email()
       |> RegisterUser.hash_password()
 
-    with {:ok, validated} <- validate_command(register_user),
-         {:ok, _} <- dispatch_command(validated) do
-      get(UserProjection, uuid)
+    with :ok <- Commanded.dispatch(register_user, consistency: :strong) do
+      case user_by_uuid(uuid) do
+        nil ->
+          {:error, :not_found}
+
+        projection ->
+          {:ok, projection}
+      end
     end
   end
 
-  def get(schema, uuid) do
-    case Repo.get(schema, uuid) do
+  def get(%UserProjection{} = schema, uuid) do
+    case Repo.get_by(schema, uuid: uuid) do
       nil ->
         {:error, :not_found}
 
@@ -50,17 +90,12 @@ defmodule ReplyExpress.Accounts do
     |> Repo.one()
   end
 
-  defp validate_command(command) do
-    case Vex.errors(command) do
-      [] -> {:ok, command}
-      error -> {:command_validation_error, error}
-    end
-  end
-
-  defp dispatch_command(command) do
-    case Commanded.dispatch(command, consistency: :strong) do
-      :ok -> {:ok, []}
-      error -> {:command_dispatch_error, error}
-    end
+  @doc """
+  Get an existing user by UUID, or return `nil` if not found
+  """
+  def user_by_uuid(uuid) when is_binary(uuid) do
+    uuid
+    |> UserByUUID.new()
+    |> Repo.one()
   end
 end

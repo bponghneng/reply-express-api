@@ -1,5 +1,5 @@
 defmodule ReplyExpressWeb.API.V1.ErrorJSONTest do
-  use ReplyExpressWeb.ConnCase, async: true
+  use ReplyExpressWeb.ConnCase
 
   alias ReplyExpressWeb.API.V1.ErrorJSON
 
