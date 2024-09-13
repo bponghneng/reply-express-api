@@ -3,6 +3,7 @@ defmodule ReplyExpress.AccountsTest do
 
   alias ReplyExpress.Accounts
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
+  alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
 
   @valid_user_attrs %{email: "test@email.local", password: "password1234"}
 
@@ -14,15 +15,13 @@ defmodule ReplyExpress.AccountsTest do
         |> set_user_projection_password(@valid_user_attrs.password)
         |> insert()
 
-      {:ok, %UserProjection{} = user} =
+      {:ok, %UserTokenProjection{} = user_token} =
         Accounts.log_in_user(%{
           email: @valid_user_attrs.email,
           hashed_password: user_projection.hashed_password
         })
 
-      dbg(user)
-
-      assert false
+      assert user_token.user_uuid == user_projection.uuid
     end
   end
 

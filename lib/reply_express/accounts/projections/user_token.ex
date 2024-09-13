@@ -14,6 +14,8 @@ defmodule ReplyExpress.Accounts.Projections.UserToken do
     field :sent_to, :string
     field :token, :binary
     field :user_uuid, :binary_id
+    field :uuid, :binary_id
+
     belongs_to :user, UserProjection
 
     timestamps()

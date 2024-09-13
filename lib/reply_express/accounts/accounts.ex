@@ -12,6 +12,7 @@ defmodule ReplyExpress.Accounts do
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Queries.UserByEmail
   alias ReplyExpress.Accounts.Queries.UserByUUID
+  alias ReplyExpress.UserTokens
   alias ReplyExpress.Commanded
 
   @doc """
@@ -25,18 +26,20 @@ defmodule ReplyExpress.Accounts do
       |> LogInUser.set_logged_in_at()
       |> LogInUser.set_uuid()
 
+    uuid = UUID.uuid4()
+
     create_session_token =
       log_in_user
       |> Map.from_struct()
       |> Map.take([:logged_in_at])
       |> CreateUserSessionToken.new()
+      |> CreateUserSessionToken.assign_uuid(uuid)
       |> CreateUserSessionToken.build_session_token()
       |> CreateUserSessionToken.set_user_uuid(log_in_user.uuid)
-      |> dbg()
 
     with :ok <- Commanded.dispatch(log_in_user, consistency: :strong),
          :ok <- Commanded.dispatch(create_session_token, consistency: :strong) do
-      case user_by_email(attrs.email) do
+      case UserTokens.user_token_by_user_uuid(log_in_user.uuid) do
         nil ->
           {:error, :not_found}
 

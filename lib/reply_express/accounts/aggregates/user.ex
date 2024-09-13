@@ -20,8 +20,10 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
 
   def execute(%User{uuid: nil}, %CreateUserSessionToken{} = create_user_session_token) do
     %UserSessionTokenCreated{
+      context: create_user_session_token.context,
       token: create_user_session_token.token,
-      user_uuid: create_user_session_token.user_uuid
+      user_uuid: create_user_session_token.user_uuid,
+      uuid: create_user_session_token.uuid
     }
   end
 

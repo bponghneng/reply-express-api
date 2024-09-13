@@ -5,5 +5,5 @@ defmodule ReplyExpress.Accounts.Events.UserSessionTokenCreated do
 
   @derive Jason.Encoder
 
-  defstruct [:token, :user_uuid]
+  defstruct [:context, :sent_to, :token, :user_uuid, :uuid]
 end

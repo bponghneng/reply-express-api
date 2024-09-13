@@ -6,7 +6,8 @@ defmodule ReplyExpress.Accounts.Commands.CreateUserSessionToken do
   defstruct context: "session",
             token: nil,
             logged_in_at: nil,
-            user_uuid: ""
+            user_uuid: "",
+            uuid: ""
 
   use ExConstructor
   use Vex.Struct
@@ -27,9 +28,18 @@ defmodule ReplyExpress.Accounts.Commands.CreateUserSessionToken do
   validates(:token, presence: [message: "can't be empty"])
   validates(:user_uuid, presence: [message: "can't be empty"], by: &UniqueSessionToken.validate/2)
 
+  @doc """
+  Assign a unique identity for the user token.
+  """
+  def assign_uuid(%CreateUserSessionToken{} = create_user_session_token, uuid) do
+    %CreateUserSessionToken{create_user_session_token | uuid: uuid}
+  end
+
   def build_session_token(%CreateUserSessionToken{} = create_user_session_token) do
-    IO.inspect(create_user_session_token, label: "create_user_session_token")
-    token = :crypto.strong_rand_bytes(@rand_size)
+    token =
+      @rand_size
+      |> :crypto.strong_rand_bytes()
+      |> Base.encode64()
 
     %CreateUserSessionToken{create_user_session_token | token: token}
   end
