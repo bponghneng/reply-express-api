@@ -1,4 +1,4 @@
-defmodule ReplyExpressWeb.API.V1.UserRegistrationController do
+defmodule ReplyExpressWeb.API.V1.Users.RegistrationController do
   use ReplyExpressWeb, :controller
 
   alias ReplyExpress.Accounts

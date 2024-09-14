@@ -22,7 +22,6 @@ defmodule ReplyExpress.Accounts do
     log_in_user =
       attrs
       |> LogInUser.new()
-      |> LogInUser.build_credentials()
       |> LogInUser.set_logged_in_at()
       |> LogInUser.set_uuid()
 

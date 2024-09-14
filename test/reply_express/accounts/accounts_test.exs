@@ -16,10 +16,7 @@ defmodule ReplyExpress.AccountsTest do
         |> insert()
 
       {:ok, %UserTokenProjection{} = user_token} =
-        Accounts.log_in_user(%{
-          email: @valid_user_attrs.email,
-          hashed_password: user_projection.hashed_password
-        })
+        Accounts.log_in_user(%{credentials: @valid_user_attrs})
 
       assert user_token.user_uuid == user_projection.uuid
     end

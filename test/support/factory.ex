@@ -28,6 +28,10 @@ defmodule ReplyExpress.Factory do
     }
   end
 
+  def set_user_projection_password(%UserProjection{} = user_projection, password) do
+    %UserProjection{user_projection | hashed_password: Pbkdf2.hash_pwd_salt(password)}
+  end
+
   def user_token_projection_factory(attrs) do
     %UserTokenProjection{
       context: attrs.context,
@@ -35,13 +39,5 @@ defmodule ReplyExpress.Factory do
       user_id: attrs.user_id,
       user_uuid: attrs.user_uuid
     }
-  end
-
-  def set_user_projection_password(%UserProjection{} = user, password) do
-    %{user | hashed_password: Pbkdf2.hash_pwd_salt(password)}
-  end
-
-  def set_user_password(user, password) do
-    %{user | hashed_password: Pbkdf2.hash_pwd_salt(password)}
   end
 end

@@ -15,16 +15,16 @@ defmodule ReplyExpress.Accounts.Validators.ValidCredentials do
   def validate(value, _context) do
     value.email
     |> Accounts.user_by_email()
-    |> password_matches?(value.hashed_password)
+    |> password_matches?(value.password)
     |> case do
       true -> :ok
       _ -> {:error, "are invalid"}
     end
   end
 
-  defp password_matches?(%UserProjection{} = user_projection, hashed_password) do
-    String.equivalent?(user_projection.hashed_password, hashed_password)
+  defp password_matches?(%UserProjection{} = user_projection, password) do
+    Pbkdf2.verify_pass(password, user_projection.hashed_password)
   end
 
-  defp password_matches?(_, _), do: false
+  defp password_matches?(_, _), do: nil
 end
