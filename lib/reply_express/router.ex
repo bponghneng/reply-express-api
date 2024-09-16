@@ -6,13 +6,16 @@ defmodule ReplyExpress.Router do
   use Commanded.Commands.Router
 
   alias ReplyExpress.Accounts.Aggregates.User
+  alias ReplyExpress.Accounts.Aggregates.UserToken
   alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.SendPasswordResetToken
   alias ReplyExpress.Support.Middleware.Validate
 
   middleware(Validate)
 
-  dispatch([StartUserSession, LogInUser, RegisterUser], to: User, identity: :uuid)
+  dispatch([LogInUser, RegisterUser], to: User, identity: :uuid)
+  dispatch([StartUserSession], to: UserToken, identity: :uuid)
 end

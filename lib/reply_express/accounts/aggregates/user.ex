@@ -6,17 +6,10 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   alias ReplyExpress.Accounts.Aggregates.User
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
-  alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Events.UserLoggedIn
   alias ReplyExpress.Accounts.Events.UserRegistered
-  alias ReplyExpress.Accounts.Events.UserSessionStarted
 
-  defstruct [
-    :email,
-    :hashed_password,
-    :logged_in_at,
-    :uuid
-  ]
+  defstruct [:email, :hashed_password, :logged_in_at, :uuid]
 
   def execute(%User{uuid: nil}, %LogInUser{} = login) do
     %UserLoggedIn{
@@ -31,15 +24,6 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
       uuid: register.uuid,
       email: register.email,
       hashed_password: register.hashed_password
-    }
-  end
-
-  def execute(%User{uuid: nil}, %StartUserSession{} = user_session) do
-    %UserSessionStarted{
-      context: user_session.context,
-      token: user_session.token,
-      user_uuid: user_session.user_uuid,
-      uuid: user_session.uuid
     }
   end
 
