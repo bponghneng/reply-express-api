@@ -6,7 +6,7 @@ defmodule ReplyExpress.Router do
   use Commanded.Commands.Router
 
   alias ReplyExpress.Accounts.Aggregates.User
-  alias ReplyExpress.Accounts.Commands.CreateUserSessionToken
+  alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
@@ -14,5 +14,5 @@ defmodule ReplyExpress.Router do
 
   middleware(Validate)
 
-  dispatch([CreateUserSessionToken, LogInUser, RegisterUser], to: User, identity: :uuid)
+  dispatch([StartUserSession, LogInUser, RegisterUser], to: User, identity: :uuid)
 end

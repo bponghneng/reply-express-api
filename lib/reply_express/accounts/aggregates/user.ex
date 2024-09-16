@@ -4,12 +4,12 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   """
 
   alias ReplyExpress.Accounts.Aggregates.User
-  alias ReplyExpress.Accounts.Commands.CreateUserSessionToken
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Events.UserLoggedIn
   alias ReplyExpress.Accounts.Events.UserRegistered
-  alias ReplyExpress.Accounts.Events.UserSessionTokenCreated
+  alias ReplyExpress.Accounts.Events.UserSessionStarted
 
   defstruct [
     :email,
@@ -17,15 +17,6 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
     :logged_in_at,
     :uuid
   ]
-
-  def execute(%User{uuid: nil}, %CreateUserSessionToken{} = create_user_session_token) do
-    %UserSessionTokenCreated{
-      context: create_user_session_token.context,
-      token: create_user_session_token.token,
-      user_uuid: create_user_session_token.user_uuid,
-      uuid: create_user_session_token.uuid
-    }
-  end
 
   def execute(%User{uuid: nil}, %LogInUser{} = login) do
     %UserLoggedIn{
@@ -40,6 +31,15 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
       uuid: register.uuid,
       email: register.email,
       hashed_password: register.hashed_password
+    }
+  end
+
+  def execute(%User{uuid: nil}, %StartUserSession{} = user_session) do
+    %UserSessionStarted{
+      context: user_session.context,
+      token: user_session.token,
+      user_uuid: user_session.user_uuid,
+      uuid: user_session.uuid
     }
   end
 

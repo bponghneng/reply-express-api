@@ -6,10 +6,9 @@ defmodule ReplyExpress.Accounts do
   import Ecto.Query, warn: false
 
   alias ReplyExpress.Repo
-  alias ReplyExpress.Accounts.Commands.CreateUserSessionToken
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
-  alias ReplyExpress.Accounts.Projections.User, as: UserProjection
+  alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Queries.UserByEmail
   alias ReplyExpress.Accounts.Queries.UserByUUID
   alias ReplyExpress.UserTokens
@@ -27,17 +26,17 @@ defmodule ReplyExpress.Accounts do
 
     uuid = UUID.uuid4()
 
-    create_session_token =
+    start_user_session =
       log_in_user
       |> Map.from_struct()
       |> Map.take([:logged_in_at])
-      |> CreateUserSessionToken.new()
-      |> CreateUserSessionToken.assign_uuid(uuid)
-      |> CreateUserSessionToken.build_session_token()
-      |> CreateUserSessionToken.set_user_uuid(log_in_user.uuid)
+      |> StartUserSession.new()
+      |> StartUserSession.assign_uuid(uuid)
+      |> StartUserSession.build_session_token()
+      |> StartUserSession.set_user_uuid(log_in_user.uuid)
 
     with :ok <- Commanded.dispatch(log_in_user, consistency: :strong),
-         :ok <- Commanded.dispatch(create_session_token, consistency: :strong) do
+         :ok <- Commanded.dispatch(start_user_session, consistency: :strong) do
       case UserTokens.user_token_by_user_uuid(log_in_user.uuid) do
         nil ->
           {:error, :not_found}
@@ -69,16 +68,6 @@ defmodule ReplyExpress.Accounts do
         projection ->
           {:ok, projection}
       end
-    end
-  end
-
-  def get(%UserProjection{} = schema, uuid) do
-    case Repo.get_by(schema, uuid: uuid) do
-      nil ->
-        {:error, :not_found}
-
-      projection ->
-        {:ok, projection}
     end
   end
 

@@ -4,7 +4,7 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
   """
 
   alias ReplyExpress.Accounts.Aggregates.UserToken
-  alias ReplyExpress.Accounts.Events.UserSessionTokenCreated
+  alias ReplyExpress.Accounts.Events.UserSessionStarted
 
   defstruct [
     :context,
@@ -15,13 +15,13 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
   ]
 
   # Mutators
-  def apply(%UserToken{} = user_token, %UserSessionTokenCreated{} = created_user_token) do
+  def apply(%UserToken{} = user_token, %UserSessionStarted{} = user_session) do
     %UserToken{
       user_token
-      | context: created_user_token.context,
-        token: created_user_token.token,
-        user_uuid: created_user_token.user_uuid,
-        uuid: created_user_token.uuid
+      | context: user_session.context,
+        token: user_session.token,
+        user_uuid: user_session.user_uuid,
+        uuid: user_session.uuid
     }
   end
 end

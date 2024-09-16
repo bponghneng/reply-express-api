@@ -1,6 +1,6 @@
-defmodule ReplyExpress.Accounts.Commands.CreateUserSessionToken do
+defmodule ReplyExpress.Accounts.Commands.StartUserSession do
   @moduledoc """
-  Command to create a session token for a logged in user, including sanitization and validation fns
+  Command to start a session for a logged in user, including sanitization and validation fns
   """
 
   defstruct context: "session",
@@ -12,7 +12,7 @@ defmodule ReplyExpress.Accounts.Commands.CreateUserSessionToken do
   use ExConstructor
   use Vex.Struct
 
-  alias ReplyExpress.Accounts.Commands.CreateUserSessionToken
+  alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Validators.UniqueSessionToken
   alias ReplyExpress.Accounts.Validators.LoggedInAtNotExpired
 
@@ -31,20 +31,20 @@ defmodule ReplyExpress.Accounts.Commands.CreateUserSessionToken do
   @doc """
   Assign a unique identity for the user token.
   """
-  def assign_uuid(%CreateUserSessionToken{} = create_user_session_token, uuid) do
-    %CreateUserSessionToken{create_user_session_token | uuid: uuid}
+  def assign_uuid(%StartUserSession{} = start_user_session, uuid) do
+    %StartUserSession{start_user_session | uuid: uuid}
   end
 
-  def build_session_token(%CreateUserSessionToken{} = create_user_session_token) do
+  def build_session_token(%StartUserSession{} = start_user_session) do
     token =
       @rand_size
       |> :crypto.strong_rand_bytes()
       |> Base.encode64()
 
-    %CreateUserSessionToken{create_user_session_token | token: token}
+    %StartUserSession{start_user_session | token: token}
   end
 
-  def set_user_uuid(%CreateUserSessionToken{} = create_user_session_token, user_uuid) do
-    %CreateUserSessionToken{create_user_session_token | user_uuid: user_uuid}
+  def set_user_uuid(%StartUserSession{} = start_user_session, user_uuid) do
+    %StartUserSession{start_user_session | user_uuid: user_uuid}
   end
 end
