@@ -6,6 +6,7 @@ defmodule ReplyExpress.Accounts.Commands.StartUserSession do
   defstruct context: "session",
             token: nil,
             logged_in_at: nil,
+            user_id: nil,
             user_uuid: "",
             uuid: ""
 

@@ -22,6 +22,8 @@ defmodule ReplyExpressWeb.ConnCase do
       # The default endpoint for testing
       @endpoint ReplyExpressWeb.Endpoint
 
+      alias ReplyExpress.Repo
+
       use ReplyExpressWeb, :verified_routes
 
       # Import conveniences for testing with connections

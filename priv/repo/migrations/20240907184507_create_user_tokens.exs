@@ -15,7 +15,7 @@ defmodule ReplyExpress.Repo.Migrations.CreateUserTokens do
 
     create index(:user_tokens, [:user_id])
     create unique_index(:user_tokens, [:context, :token])
-    create unique_index(:user_tokens, [:user_uuid])
+    create unique_index(:user_tokens, [:context, :user_uuid])
     create unique_index(:user_tokens, [:uuid])
   end
 end

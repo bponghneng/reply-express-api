@@ -11,6 +11,6 @@ defmodule ReplyExpress.Accounts.Queries.UserTokenByUUID do
   Creates new query for a user by the user's UUID
   """
   def new(uuid) do
-    UserTokenProjection |> where([u], u.user_uuid == ^uuid)
+    UserTokenProjection |> where([ut], ut.user_uuid == ^uuid)
   end
 end

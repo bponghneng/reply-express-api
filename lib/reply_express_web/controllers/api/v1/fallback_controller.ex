@@ -35,4 +35,13 @@ defmodule ReplyExpressWeb.API.V1.FallbackController do
     |> put_view(json: CommandValidationErrorJSON)
     |> render(:errors, errors: validation_errors)
   end
+
+  def call(conn, error) do
+    IO.inspect(error, label: "error")
+
+    conn
+    |> put_status(500)
+    |> put_view(json: ErrorJSON)
+    |> render(:"500")
+  end
 end

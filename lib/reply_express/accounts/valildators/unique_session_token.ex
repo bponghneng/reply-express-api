@@ -19,7 +19,7 @@ defmodule ReplyExpress.Accounts.Validators.UniqueSessionToken do
   end
 
   defp session_token_exists?(uuid) do
-    case UserTokens.user_token_by_user_uuid(uuid) do
+    case UserTokens.user_session_token_by_user_uuid(uuid) do
       %UserTokenProjection{} -> true
       nil -> false
       _ -> true

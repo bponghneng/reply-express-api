@@ -5,5 +5,5 @@ defmodule ReplyExpress.Accounts.Events.UserSessionStarted do
 
   @derive Jason.Encoder
 
-  defstruct [:context, :sent_to, :token, :user_uuid, :uuid]
+  defstruct [:context, :sent_to, :token, :user_id, :user_uuid, :uuid]
 end

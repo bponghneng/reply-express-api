@@ -4,12 +4,20 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   """
 
   alias ReplyExpress.Accounts.Aggregates.User
+  alias ReplyExpress.Accounts.Commands.ClearUserTokens
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.ResetPassword
+  alias ReplyExpress.Accounts.Events.PasswordReset
   alias ReplyExpress.Accounts.Events.UserLoggedIn
   alias ReplyExpress.Accounts.Events.UserRegistered
+  alias ReplyExpress.Accounts.Events.UserTokensCleared
 
   defstruct [:email, :hashed_password, :logged_in_at, :uuid]
+
+  def execute(%User{uuid: nil}, %ClearUserTokens{} = clear_user_tokens) do
+    %UserTokensCleared{uuid: clear_user_tokens.uuid}
+  end
 
   def execute(%User{uuid: nil}, %LogInUser{} = login) do
     %UserLoggedIn{
@@ -25,6 +33,10 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
       email: register.email,
       hashed_password: register.hashed_password
     }
+  end
+
+  def execute(%User{uuid: nil}, %ResetPassword{} = reset_password) do
+    %PasswordReset{hashed_password: reset_password.hashed_password, uuid: reset_password.uuid}
   end
 
   # Mutators

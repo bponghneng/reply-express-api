@@ -52,8 +52,7 @@ defmodule ReplyExpress.Accounts.Commands.RegisterUser do
   def hash_password(%RegisterUser{password: password} = register_user) do
     %RegisterUser{
       register_user
-      | password: password,
-        hashed_password: Pbkdf2.hash_pwd_salt(password)
+      | hashed_password: Pbkdf2.hash_pwd_salt(password)
     }
   end
 end

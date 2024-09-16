@@ -29,6 +29,7 @@ defmodule ReplyExpressWeb.Router do
       # User authentication
       post "/log_in", SessionController, :create
       post "/register", RegistrationController, :create
+      post "/reset_password", ResetPasswordController, :create
     end
   end
 end
