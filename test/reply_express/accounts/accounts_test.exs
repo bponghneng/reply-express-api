@@ -2,9 +2,27 @@ defmodule ReplyExpress.AccountsTest do
   use ReplyExpress.DataCase
 
   alias ReplyExpress.Accounts
+  alias ReplyExpress.Accounts.Commands.ResetPassword
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
+  alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
 
   @valid_user_attrs %{email: "test@email.local", password: "password1234"}
+
+  describe "generate_password_reset_token/1" do
+    test "Creates token and sends email with password reset link" do
+      user_projection =
+        :user_projection
+        |> build(email: @valid_user_attrs.email)
+        |> set_user_projection_password(@valid_user_attrs.password)
+        |> insert()
+
+      {:ok, %UserTokenProjection{} = user_token} =
+        Accounts.generate_password_reset_token(%{email: @valid_user_attrs.email})
+
+      assert user_token.user_uuid == user_projection.uuid
+      assert user_token.context == "reset_password"
+    end
+  end
 
   describe "log_in_user/1" do
     test "Logs in a registered user from valid email and password" do
@@ -14,15 +32,10 @@ defmodule ReplyExpress.AccountsTest do
         |> set_user_projection_password(@valid_user_attrs.password)
         |> insert()
 
-      {:ok, %UserProjection{} = user} =
-        Accounts.log_in_user(%{
-          email: @valid_user_attrs.email,
-          hashed_password: user_projection.hashed_password
-        })
+      {:ok, %UserTokenProjection{} = user_token} =
+        Accounts.log_in_user(%{credentials: @valid_user_attrs})
 
-      dbg(user)
-
-      assert false
+      assert user_token.user_uuid == user_projection.uuid
     end
   end
 
@@ -51,6 +64,100 @@ defmodule ReplyExpress.AccountsTest do
              |> Map.get(:password)
              |> Enum.at(0)
              |> Keyword.get(:message) == "must be at least 8 characters"
+    end
+  end
+
+  describe "reset_password/1" do
+    test "Updates a user's password" do
+      user_projection =
+        :user_projection
+        |> build(email: @valid_user_attrs.email)
+        |> set_user_projection_password(@valid_user_attrs.password)
+        |> insert()
+
+      user_token_projection =
+        :user_token_projection
+        |> build(context: "reset_password", user: user_projection)
+        |> insert()
+
+      {:ok, %ResetPassword{} = result} =
+        Accounts.reset_password(%{
+          password: @valid_user_attrs.password,
+          password_confirmation: @valid_user_attrs.password,
+          token: Base.encode64(user_token_projection.token)
+        })
+
+      assert result.password == @valid_user_attrs.password
+      assert result.password_confirmation == @valid_user_attrs.password
+      assert result.token == Base.encode64(user_token_projection.token)
+      assert result.uuid == user_projection.uuid
+    end
+
+    test "Validates required fields" do
+      user_projection =
+        :user_projection
+        |> build(email: @valid_user_attrs.email)
+        |> set_user_projection_password(@valid_user_attrs.password)
+        |> insert()
+
+      :user_token_projection
+      |> build(context: "reset_password", user: user_projection)
+      |> insert()
+
+      {:error, :validation_failure, errors} = Accounts.reset_password(%{})
+
+      assert errors.password == ["can't be empty"]
+      assert errors.token == ["can't be empty"]
+      assert errors.uuid == ["can't be empty"]
+    end
+
+    test "Validates password_confirmation" do
+      user_projection =
+        :user_projection
+        |> build(email: @valid_user_attrs.email)
+        |> set_user_projection_password(@valid_user_attrs.password)
+        |> insert()
+
+      user_token_projection =
+        :user_token_projection
+        |> build(context: "reset_password", user: user_projection)
+        |> insert()
+
+      {:error, :validation_failure, errors} =
+        Accounts.reset_password(%{
+          password: @valid_user_attrs.password,
+          password_confirmation: "does not match",
+          token: Base.encode64(user_token_projection.token)
+        })
+
+      assert errors.password == ["passwords do not match"]
+    end
+
+    test "Deletes all of a user's existing tokens" do
+      user_projection =
+        :user_projection
+        |> build(email: @valid_user_attrs.email)
+        |> set_user_projection_password(@valid_user_attrs.password)
+        |> insert()
+
+      :user_token_projection
+      |> build(context: "session", user: user_projection)
+      |> insert()
+
+      user_reset_password_token_projection =
+        :user_token_projection
+        |> build(context: "reset_password", user: user_projection)
+        |> insert()
+
+      Accounts.reset_password(%{
+        password: @valid_user_attrs.password,
+        password_confirmation: @valid_user_attrs.password,
+        token: Base.encode64(user_reset_password_token_projection.token)
+      })
+
+      result = Repo.all(UserTokenProjection)
+
+      assert result == []
     end
   end
 end

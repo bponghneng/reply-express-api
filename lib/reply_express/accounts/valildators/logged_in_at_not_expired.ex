@@ -13,7 +13,6 @@ defmodule ReplyExpress.Accounts.Validators.LoggedInAtNotExpired do
       true -> {:error, "has expired"}
       false -> :ok
     end
-    |> dbg()
   end
 
   defp more_than_one_hour_elapsed?(logged_in_at) do

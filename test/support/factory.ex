@@ -3,21 +3,8 @@ defmodule ReplyExpress.Factory do
 
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
-  alias ReplyExpress.Accounts.Commands.RegisterUser
 
   @rand_size 32
-
-  def register_user_factory do
-    struct(RegisterUser, build(:user))
-  end
-
-  def user_factory do
-    %{
-      email: "test@email.local",
-      password: "password1234",
-      hashed_password: "4321drowssap"
-    }
-  end
 
   def user_projection_factory() do
     %UserProjection{
@@ -28,20 +15,24 @@ defmodule ReplyExpress.Factory do
     }
   end
 
+  def set_user_projection_password(%UserProjection{} = user_projection, password) do
+    %UserProjection{user_projection | hashed_password: Pbkdf2.hash_pwd_salt(password)}
+  end
+
   def user_token_projection_factory(attrs) do
+    user = if Map.get(attrs, :user) != nil, do: attrs.user, else: nil
+    sent_to = if user, do: user.email, else: Map.get(attrs, :sent_to)
+    user_id = if user, do: user.id, else: Map.get(attrs, :user_id)
+    user_uuid = if user, do: user.uuid, else: Map.get(attrs, :user_uuid)
+
     %UserTokenProjection{
-      context: attrs.context,
+      context: Map.get(attrs, :context) || "session",
+      inserted_at: Map.get(attrs, :inserted_at) || Timex.now(),
+      sent_to: sent_to,
       token: :crypto.strong_rand_bytes(@rand_size),
-      user_id: attrs.user_id,
-      user_uuid: attrs.user_uuid
+      uuid: UUID.uuid4(),
+      user_id: user_id,
+      user_uuid: user_uuid
     }
-  end
-
-  def set_user_projection_password(%UserProjection{} = user, password) do
-    %{user | hashed_password: Pbkdf2.hash_pwd_salt(password)}
-  end
-
-  def set_user_password(user, password) do
-    %{user | hashed_password: Pbkdf2.hash_pwd_salt(password)}
   end
 end

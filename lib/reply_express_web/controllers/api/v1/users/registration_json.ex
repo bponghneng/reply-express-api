@@ -1,4 +1,4 @@
-defmodule ReplyExpressWeb.API.V1.UserRegistrationJSON do
+defmodule ReplyExpressWeb.API.V1.Users.RegistrationJSON do
   @moduledoc """
   Renders public state of user after initial registration
   """

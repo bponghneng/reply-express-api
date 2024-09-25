@@ -1,9 +1,9 @@
-defmodule ReplyExpress.API.V1.UserRegistrationJSONTest do
+defmodule ReplyExpress.API.V1.Users.RegistrationJSONTest do
   use ReplyExpressWeb.ConnCase
 
   import ReplyExpress.Factory
 
-  alias ReplyExpressWeb.API.V1.UserRegistrationJSON
+  alias ReplyExpressWeb.API.V1.Users.RegistrationJSON
 
   describe "show/1" do
     test "renders registered user data" do
@@ -19,7 +19,7 @@ defmodule ReplyExpress.API.V1.UserRegistrationJSONTest do
         }
       }
 
-      assert UserRegistrationJSON.show(%{user: user}) == expected
+      assert RegistrationJSON.show(%{user: user}) == expected
     end
   end
 end

@@ -1,4 +1,4 @@
-defmodule ReplyExpressWeb.UserRegistrationControllerTest do
+defmodule ReplyExpressWeb.Users.RegistrationControllerTest do
   use ReplyExpressWeb.ConnCase
 
   describe "POST /api/v1/users/register" do
@@ -6,9 +6,8 @@ defmodule ReplyExpressWeb.UserRegistrationControllerTest do
       email = "test@email.local"
 
       response =
-        post(context.conn, ~p"/api/v1/users/register", %{
-          "user" => %{email: email, password: "password1234"}
-        })
+        context.conn
+        |> post(~p"/api/v1/users/register", %{"user" => %{email: email, password: "password1234"}})
         |> json_response(200)
 
       assert response["data"]["email"] == email
@@ -19,7 +18,8 @@ defmodule ReplyExpressWeb.UserRegistrationControllerTest do
       invalid_password = "1234"
 
       response =
-        post(context.conn, ~p"/api/v1/users/register", %{
+        context.conn
+        |> post(~p"/api/v1/users/register", %{
           "user" => %{email: invalid_email, password: invalid_password}
         })
         |> json_response(422)

@@ -6,13 +6,40 @@ defmodule ReplyExpress.Accounts do
   import Ecto.Query, warn: false
 
   alias ReplyExpress.Repo
-  alias ReplyExpress.Accounts.Commands.CreateUserSessionToken
+  alias ReplyExpress.Accounts.Commands.ClearUserTokens
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
-  alias ReplyExpress.Accounts.Projections.User, as: UserProjection
+  alias ReplyExpress.Accounts.Commands.ResetPassword
+  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
+  alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Queries.UserByEmail
   alias ReplyExpress.Accounts.Queries.UserByUUID
+  alias ReplyExpress.UserTokens
   alias ReplyExpress.Commanded
+
+  @doc """
+  Sets a reset_password token for a user
+  """
+  def generate_password_reset_token(attrs) do
+    uuid = UUID.uuid4()
+
+    send_password_reset_token =
+      attrs
+      |> GeneratePasswordResetToken.new()
+      |> GeneratePasswordResetToken.assign_uuid(uuid)
+      |> GeneratePasswordResetToken.build_reset_password_token()
+      |> GeneratePasswordResetToken.set_user_properties()
+
+    with :ok <- Commanded.dispatch(send_password_reset_token, consistency: :strong) do
+      case UserTokens.user_reset_password_token_by_user_uuid(send_password_reset_token.user_uuid) do
+        nil ->
+          {:error, :not_found}
+
+        projection ->
+          {:ok, projection}
+      end
+    end
+  end
 
   @doc """
   Authenticates a user.
@@ -21,22 +48,23 @@ defmodule ReplyExpress.Accounts do
     log_in_user =
       attrs
       |> LogInUser.new()
-      |> LogInUser.build_credentials()
       |> LogInUser.set_logged_in_at()
       |> LogInUser.set_uuid()
 
-    create_session_token =
+    uuid = UUID.uuid4()
+
+    start_user_session =
       log_in_user
       |> Map.from_struct()
       |> Map.take([:logged_in_at])
-      |> CreateUserSessionToken.new()
-      |> CreateUserSessionToken.build_session_token()
-      |> CreateUserSessionToken.set_user_uuid(log_in_user.uuid)
-      |> dbg()
+      |> StartUserSession.new()
+      |> StartUserSession.assign_uuid(uuid)
+      |> StartUserSession.build_session_token()
+      |> StartUserSession.set_user_uuid(log_in_user.uuid)
 
     with :ok <- Commanded.dispatch(log_in_user, consistency: :strong),
-         :ok <- Commanded.dispatch(create_session_token, consistency: :strong) do
-      case user_by_email(attrs.email) do
+         :ok <- Commanded.dispatch(start_user_session, consistency: :strong) do
+      case UserTokens.user_session_token_by_user_uuid(log_in_user.uuid) do
         nil ->
           {:error, :not_found}
 
@@ -70,13 +98,21 @@ defmodule ReplyExpress.Accounts do
     end
   end
 
-  def get(%UserProjection{} = schema, uuid) do
-    case Repo.get_by(schema, uuid: uuid) do
-      nil ->
-        {:error, :not_found}
+  def reset_password(attrs) do
+    reset_password =
+      attrs
+      |> ResetPassword.new()
+      |> ResetPassword.hash_password()
+      |> ResetPassword.set_uuid_from_token()
 
-      projection ->
-        {:ok, projection}
+    clear_user_tokens =
+      reset_password
+      |> Map.take([:uuid])
+      |> ClearUserTokens.new()
+
+    with :ok <- Commanded.dispatch(reset_password),
+         :ok <- Commanded.dispatch(clear_user_tokens, consistency: :strong) do
+      {:ok, reset_password}
     end
   end
 
