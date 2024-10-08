@@ -1,4 +1,4 @@
-defmodule ReplyExpress.Accounts do
+defmodule ReplyExpress.Accounts.UsersContext do
   @moduledoc """
   The Accounts context.
   """
@@ -14,7 +14,7 @@ defmodule ReplyExpress.Accounts do
   alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Queries.UserByEmail
   alias ReplyExpress.Accounts.Queries.UserByUUID
-  alias ReplyExpress.UserTokens
+  alias ReplyExpress.Accounts.UserTokensContext
   alias ReplyExpress.Commanded
 
   @doc """
@@ -31,7 +31,9 @@ defmodule ReplyExpress.Accounts do
       |> GeneratePasswordResetToken.set_user_properties()
 
     with :ok <- Commanded.dispatch(send_password_reset_token, consistency: :strong) do
-      case UserTokens.user_reset_password_token_by_user_uuid(send_password_reset_token.user_uuid) do
+      case UserTokensContext.user_reset_password_token_by_user_uuid(
+             send_password_reset_token.user_uuid
+           ) do
         nil ->
           {:error, :not_found}
 
@@ -64,7 +66,7 @@ defmodule ReplyExpress.Accounts do
 
     with :ok <- Commanded.dispatch(log_in_user, consistency: :strong),
          :ok <- Commanded.dispatch(start_user_session, consistency: :strong) do
-      case UserTokens.user_session_token_by_user_uuid(log_in_user.uuid) do
+      case UserTokensContext.user_session_token_by_user_uuid(log_in_user.uuid) do
         nil ->
           {:error, :not_found}
 

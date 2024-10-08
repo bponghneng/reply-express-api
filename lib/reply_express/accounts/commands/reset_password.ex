@@ -15,7 +15,7 @@ defmodule ReplyExpress.Accounts.Commands.ResetPassword do
   alias ReplyExpress.Accounts.Commands.ResetPassword
   #  alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
   alias ReplyExpress.Accounts.Validators.ResetPasswordTokenExists
-  alias ReplyExpress.UserTokens
+  alias ReplyExpress.Accounts.UserTokensContext
 
   validates(:password,
     presence: [message: "can't be empty"],
@@ -44,7 +44,7 @@ defmodule ReplyExpress.Accounts.Commands.ResetPassword do
   """
   def set_uuid_from_token(%ResetPassword{token: token} = reset_password) do
     user_token =
-      if is_nil(token), do: nil, else: UserTokens.user_reset_password_token_by_token(token)
+      if is_nil(token), do: nil, else: UserTokensContext.user_reset_password_token_by_token(token)
 
     uuid = if is_nil(user_token), do: nil, else: user_token |> Map.get(:user) |> Map.get(:uuid)
 

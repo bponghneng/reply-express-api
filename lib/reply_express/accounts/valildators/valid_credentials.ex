@@ -5,8 +5,8 @@ defmodule ReplyExpress.Accounts.Validators.ValidCredentials do
 
   use Vex.Validator
 
-  alias ReplyExpress.Accounts
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
+  alias ReplyExpress.Accounts.UsersContext
 
   @doc """
   Returns an error tuple with message if a user registration does not exist or if the password
@@ -14,7 +14,7 @@ defmodule ReplyExpress.Accounts.Validators.ValidCredentials do
   """
   def validate(value, _context) do
     value.email
-    |> Accounts.user_by_email()
+    |> UsersContext.user_by_email()
     |> password_matches?(value.password)
     |> case do
       true -> :ok

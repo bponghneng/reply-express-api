@@ -10,9 +10,9 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
   use ExConstructor
   use Vex.Struct
 
-  alias ReplyExpress.Accounts
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
+  alias ReplyExpress.Accounts.UsersContext
   alias ReplyExpress.Accounts.Validators.ValidCredentials
 
   validates(:credentials, presence: [message: "can't be empty"], by: &ValidCredentials.validate/2)
@@ -34,6 +34,6 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
   end
 
   defp user_by_email(%LogInUser{} = log_in_user) do
-    Accounts.user_by_email(log_in_user.credentials.email)
+    UsersContext.user_by_email(log_in_user.credentials.email)
   end
 end

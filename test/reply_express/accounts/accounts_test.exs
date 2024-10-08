@@ -1,10 +1,10 @@
-defmodule ReplyExpress.AccountsTest do
+defmodule ReplyExpress.Accounts.UsersContext.Test do
   use ReplyExpress.DataCase
 
-  alias ReplyExpress.Accounts
   alias ReplyExpress.Accounts.Commands.ResetPassword
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
+  alias ReplyExpress.Accounts.UsersContext
 
   @valid_user_attrs %{email: "test@email.local", password: "password1234"}
 
@@ -17,7 +17,7 @@ defmodule ReplyExpress.AccountsTest do
         |> insert()
 
       {:ok, %UserTokenProjection{} = user_token} =
-        Accounts.generate_password_reset_token(%{email: @valid_user_attrs.email})
+        UsersContext.generate_password_reset_token(%{email: @valid_user_attrs.email})
 
       assert user_token.user_uuid == user_projection.uuid
       assert user_token.context == "reset_password"
@@ -33,7 +33,7 @@ defmodule ReplyExpress.AccountsTest do
         |> insert()
 
       {:ok, %UserTokenProjection{} = user_token} =
-        Accounts.log_in_user(%{credentials: @valid_user_attrs})
+        UsersContext.log_in_user(%{credentials: @valid_user_attrs})
 
       assert user_token.user_uuid == user_projection.uuid
     end
@@ -41,23 +41,23 @@ defmodule ReplyExpress.AccountsTest do
 
   describe "register_user/1" do
     test "Registers new user from valid data" do
-      {:ok, %UserProjection{} = user} = Accounts.register_user(@valid_user_attrs)
+      {:ok, %UserProjection{} = user} = UsersContext.register_user(@valid_user_attrs)
 
       assert user.email == @valid_user_attrs.email
     end
 
     test "Validates email is unique" do
-      Accounts.register_user(@valid_user_attrs)
+      UsersContext.register_user(@valid_user_attrs)
 
       # Email address already registered
-      {:error, :validation_failure, errors} = Accounts.register_user(@valid_user_attrs)
+      {:error, :validation_failure, errors} = UsersContext.register_user(@valid_user_attrs)
 
       assert errors == %{email: ["has already been taken"]}
     end
 
     test "Validates password is at least 8 characters" do
       {:error, :validation_failure, errors} =
-        Accounts.register_user(%{@valid_user_attrs | password: "invalid"})
+        UsersContext.register_user(%{@valid_user_attrs | password: "invalid"})
 
       # Extract message from parameterized error
       assert errors
@@ -81,7 +81,7 @@ defmodule ReplyExpress.AccountsTest do
         |> insert()
 
       {:ok, %ResetPassword{} = result} =
-        Accounts.reset_password(%{
+        UsersContext.reset_password(%{
           password: @valid_user_attrs.password,
           password_confirmation: @valid_user_attrs.password,
           token: Base.encode64(user_token_projection.token)
@@ -104,7 +104,7 @@ defmodule ReplyExpress.AccountsTest do
       |> build(context: "reset_password", user: user_projection)
       |> insert()
 
-      {:error, :validation_failure, errors} = Accounts.reset_password(%{})
+      {:error, :validation_failure, errors} = UsersContext.reset_password(%{})
 
       assert errors.password == ["can't be empty"]
       assert errors.token == ["can't be empty"]
@@ -124,7 +124,7 @@ defmodule ReplyExpress.AccountsTest do
         |> insert()
 
       {:error, :validation_failure, errors} =
-        Accounts.reset_password(%{
+        UsersContext.reset_password(%{
           password: @valid_user_attrs.password,
           password_confirmation: "does not match",
           token: Base.encode64(user_token_projection.token)
@@ -149,7 +149,7 @@ defmodule ReplyExpress.AccountsTest do
         |> build(context: "reset_password", user: user_projection)
         |> insert()
 
-      Accounts.reset_password(%{
+      UsersContext.reset_password(%{
         password: @valid_user_attrs.password,
         password_confirmation: @valid_user_attrs.password,
         token: Base.encode64(user_reset_password_token_projection.token)
