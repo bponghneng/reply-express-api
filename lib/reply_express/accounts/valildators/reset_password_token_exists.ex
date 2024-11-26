@@ -6,7 +6,7 @@ defmodule ReplyExpress.Accounts.Validators.ResetPasswordTokenExists do
   use Vex.Validator
 
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
-  alias ReplyExpress.UserTokens
+  alias ReplyExpress.Accounts.UserTokensContext
 
   @doc """
   Returns an error tuple with message if a user session token exists for the uuid and `:ok` if not
@@ -23,7 +23,7 @@ defmodule ReplyExpress.Accounts.Validators.ResetPasswordTokenExists do
   end
 
   defp reset_password_token_exists?(token) do
-    case UserTokens.user_reset_password_token_by_token(token) do
+    case UserTokensContext.user_reset_password_token_by_token(token) do
       %UserTokenProjection{} -> true
       _ -> false
     end

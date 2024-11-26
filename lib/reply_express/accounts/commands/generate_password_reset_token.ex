@@ -12,8 +12,8 @@ defmodule ReplyExpress.Accounts.Commands.GeneratePasswordResetToken do
   use ExConstructor
   use Vex.Struct
 
-  alias ReplyExpress.Accounts
   alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
+  alias ReplyExpress.Accounts.UsersContext
 
   @rand_size 32
 
@@ -50,6 +50,6 @@ defmodule ReplyExpress.Accounts.Commands.GeneratePasswordResetToken do
   end
 
   defp extract_user_projection(%GeneratePasswordResetToken{} = send_password_reset_token) do
-    Accounts.user_by_email(send_password_reset_token.email)
+    UsersContext.user_by_email(send_password_reset_token.email)
   end
 end

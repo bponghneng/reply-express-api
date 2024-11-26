@@ -1,4 +1,4 @@
-defmodule ReplyExpress.UserTokens do
+defmodule ReplyExpress.Accounts.UserTokensContext do
   @moduledoc """
   The UserTokens context.
   """
