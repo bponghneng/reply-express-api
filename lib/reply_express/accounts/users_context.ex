@@ -51,27 +51,55 @@ defmodule ReplyExpress.Accounts.UsersContext do
       attrs
       |> LogInUser.new()
       |> LogInUser.set_logged_in_at()
-      |> LogInUser.set_uuid()
-
-    uuid = UUID.uuid4()
-
-    start_user_session =
-      log_in_user
-      |> Map.from_struct()
-      |> Map.take([:logged_in_at])
-      |> StartUserSession.new()
-      |> StartUserSession.assign_uuid(uuid)
-      |> StartUserSession.build_session_token()
-      |> StartUserSession.set_user_uuid(log_in_user.uuid)
+      |> LogInUser.set_id_and_uuid()
 
     with :ok <- Commanded.dispatch(log_in_user, consistency: :strong),
-         :ok <- Commanded.dispatch(start_user_session, consistency: :strong) do
+         :ok <- command_start_user_session(log_in_user) do
       case UserTokensContext.user_session_token_by_user_uuid(log_in_user.uuid) do
         nil ->
           {:error, :not_found}
 
         projection ->
           {:ok, projection}
+      end
+    else
+      {:error, :validation_failure, %{user_uuid: ["session token already exists"]}} ->
+        reset_user_session(log_in_user)
+
+      error ->
+        error
+    end
+  end
+
+  defp command_start_user_session(log_in_user) do
+    uuid = UUID.uuid4()
+
+    log_in_user
+    |> Map.from_struct()
+    |> Map.take([:logged_in_at])
+    |> StartUserSession.new()
+    |> StartUserSession.assign_uuid(uuid)
+    |> StartUserSession.build_session_token()
+    |> StartUserSession.set_user_id(log_in_user.id)
+    |> StartUserSession.set_user_uuid(log_in_user.uuid)
+    |> Commanded.dispatch(consistency: :strong)
+  end
+
+  defp reset_user_session(log_in_user) do
+    clear_user_tokens =
+      log_in_user
+      |> Map.take([:uuid])
+      |> ClearUserTokens.new()
+
+    with :ok <- Commanded.dispatch(clear_user_tokens, consistency: :strong),
+         :ok <- command_start_user_session(log_in_user) do
+      log_in_user.uuid
+      |> UserByUUID.new()
+      |> preload([:user_tokens])
+      |> Repo.one()
+      |> case do
+        nil -> {:error, :not_found}
+        projection -> {:ok, projection}
       end
     end
   end

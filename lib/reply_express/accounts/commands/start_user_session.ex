@@ -45,6 +45,10 @@ defmodule ReplyExpress.Accounts.Commands.StartUserSession do
     %StartUserSession{start_user_session | token: token}
   end
 
+  def set_user_id(%StartUserSession{} = start_user_session, user_id) do
+    %StartUserSession{start_user_session | user_id: user_id}
+  end
+
   def set_user_uuid(%StartUserSession{} = start_user_session, user_uuid) do
     %StartUserSession{start_user_session | user_uuid: user_uuid}
   end

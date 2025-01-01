@@ -6,8 +6,8 @@ defmodule ReplyExpressWeb.API.V1.Users.RegistrationController do
 
   action_fallback ReplyExpressWeb.API.V1.FallbackController
 
-  def create(conn, %{"user" => user_params}) do
-    result = UsersContext.register_user(user_params)
+  def create(conn, params) do
+    result = UsersContext.register_user(params["user"])
 
     with {:ok, %UserProjection{} = user} <- result do
       render(conn, :show, user: user)
