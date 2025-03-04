@@ -17,7 +17,7 @@ config :reply_express, ReplyExpressWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [json: ReplyExpressWeb.ErrorJSON],
+    formats: [json: ReplyExpressWeb.API.V1.ErrorJSON],
     layout: false
   ],
   pubsub_server: ReplyExpress.PubSub,

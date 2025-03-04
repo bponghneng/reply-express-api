@@ -36,6 +36,7 @@ defmodule ReplyExpress.MixProject do
       {:commanded, "~> 1.4"},
       {:commanded_ecto_projections, "~> 1.4"},
       {:commanded_eventstore_adapter, "~> 1.4"},
+      {:cors_plug, "~> 3.0"},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
       {:elixir_uuid, "~> 1.2"},

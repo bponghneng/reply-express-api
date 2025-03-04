@@ -3,9 +3,7 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
   Command to log in a registered user, including sanitization and validation fns
   """
 
-  defstruct credentials: nil,
-            logged_in_at: nil,
-            uuid: ""
+  defstruct [:id, credentials: nil, logged_in_at: nil, uuid: ""]
 
   use ExConstructor
   use Vex.Struct
@@ -21,16 +19,19 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
     %LogInUser{log_in_user | logged_in_at: Timex.now()}
   end
 
-  def set_uuid(%LogInUser{} = log_in_user) do
-    uuid =
+  def set_id_and_uuid(%LogInUser{} = log_in_user) do
+    %{id: id, uuid: uuid} =
       log_in_user
       |> user_by_email()
       |> case do
-        %UserProjection{} = user_projection -> user_projection.uuid
-        _ -> nil
+        %UserProjection{} = user_projection ->
+          %{id: user_projection.id, uuid: user_projection.uuid}
+
+        _ ->
+          nil
       end
 
-    %LogInUser{log_in_user | uuid: uuid}
+    %LogInUser{log_in_user | id: id, uuid: uuid}
   end
 
   defp user_by_email(%LogInUser{} = log_in_user) do

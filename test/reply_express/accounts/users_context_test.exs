@@ -5,8 +5,45 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
   alias ReplyExpress.Accounts.UsersContext
+  alias ReplyExpress.Repo
 
+  @valid_credentials %{email: "test@email.local", password: "password1234"}
   @valid_user_attrs %{email: "test@email.local", password: "password1234"}
+
+  describe "log_in_user" do
+    test "creates session token when none exist for valid credentials" do
+      user =
+        :user_projection
+        |> build(email: @valid_credentials.email)
+        |> set_user_projection_password(@valid_credentials.password)
+        |> insert()
+
+      {:ok, result} = UsersContext.log_in_user(%{"credentials" => @valid_credentials})
+
+      assert %UserTokenProjection{} = result
+      assert result.user_uuid == user.uuid
+    end
+
+    test "resets session token when valid one exists" do
+      user =
+        :user_projection
+        |> build(email: @valid_credentials.email)
+        |> set_user_projection_password(@valid_credentials.password)
+        |> insert()
+
+      context = "session"
+
+      user_token =
+        insert(:user_token_projection, context: context, user_id: user.id, user_uuid: user.uuid)
+
+      {:ok, %UserProjection{user_tokens: [result_user_token]}} =
+        UsersContext.log_in_user(%{"credentials" => @valid_credentials})
+
+      assert UserTokenProjection |> Repo.all() |> length() == 1
+      assert result_user_token.context == context
+      refute result_user_token.token == user_token.token
+    end
+  end
 
   describe "generate_password_reset_token/1" do
     test "Creates token and sends email with password reset link" do

@@ -5,6 +5,8 @@ defmodule ReplyExpress.Accounts.Projections.User do
 
   use Ecto.Schema
 
+  alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
+
   @timestamps_opts [type: :utc_datetime_usec]
 
   schema "users" do
@@ -13,6 +15,8 @@ defmodule ReplyExpress.Accounts.Projections.User do
     field :hashed_password, :string
     field :logged_in_at, :utc_datetime
     field :uuid, :binary_id
+
+    has_many :user_tokens, UserTokenProjection
 
     timestamps()
   end

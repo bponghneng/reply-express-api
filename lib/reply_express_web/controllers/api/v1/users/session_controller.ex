@@ -1,6 +1,7 @@
 defmodule ReplyExpressWeb.API.V1.Users.SessionController do
   use ReplyExpressWeb, :controller
 
+  alias Plug.Conn
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
   alias ReplyExpress.Accounts.UsersContext
 
@@ -12,8 +13,13 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionController do
         credentials: %{email: credentials["email"], password: credentials["password"]}
       })
 
-    with {:ok, %UserTokenProjection{} = token} <- result do
-      render(conn, :show, token: token)
+    with {:ok, %UserTokenProjection{} = user_token_projection} <- result do
+      conn
+      |> Conn.put_resp_cookie(user_token_projection.context, user_token_projection.token,
+        encrypt: true
+      )
+      |> put_status(:no_content)
+      |> json(%{})
     end
   end
 end

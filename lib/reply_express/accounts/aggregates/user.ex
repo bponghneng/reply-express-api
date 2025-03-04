@@ -15,7 +15,7 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
 
   defstruct [:email, :hashed_password, :logged_in_at, :uuid]
 
-  def execute(%User{uuid: nil}, %ClearUserTokens{} = clear_user_tokens) do
+  def execute(%User{}, %ClearUserTokens{} = clear_user_tokens) do
     %UserTokensCleared{uuid: clear_user_tokens.uuid}
   end
 
