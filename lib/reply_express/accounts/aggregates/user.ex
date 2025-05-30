@@ -19,9 +19,9 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
     %UserTokensCleared{uuid: clear_user_tokens.uuid}
   end
 
-  def execute(%User{uuid: nil}, %LogInUser{} = login) do
+  def execute(%User{} = user, %LogInUser{} = login) do
     %UserLoggedIn{
-      credentials: login.credentials,
+      email: login.credentials.email,
       logged_in_at: login.logged_in_at,
       uuid: login.uuid
     }

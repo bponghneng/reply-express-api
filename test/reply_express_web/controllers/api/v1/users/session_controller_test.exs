@@ -35,5 +35,14 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionControllerTest do
 
       assert response["errors"]["credentials"] == ["are invalid"]
     end
+
+    test "handles empty POST body", context do
+      response =
+        context.conn
+        |> post(~p"/api/v1/users/log_in", %{})
+        |> json_response(422)
+
+      assert response["errors"]["credentials"] == ["is required"]
+    end
   end
 end
