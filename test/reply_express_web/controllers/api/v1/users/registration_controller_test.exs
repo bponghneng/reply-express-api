@@ -26,5 +26,14 @@ defmodule ReplyExpressWeb.Users.RegistrationControllerTest do
 
       assert response["errors"]["email"] == ["is invalid"]
     end
+
+    test "handles empty POST body", context do
+      response =
+        context.conn
+        |> post(~p"/api/v1/users/register", %{})
+        |> json_response(422)
+
+      assert response["errors"]["user"] == ["is required"]
+    end
   end
 end
