@@ -37,6 +37,7 @@ defmodule ReplyExpress.MixProject do
       {:commanded_ecto_projections, "~> 1.4"},
       {:commanded_eventstore_adapter, "~> 1.4"},
       {:cors_plug, "~> 3.0"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
       {:elixir_uuid, "~> 1.2"},
@@ -76,7 +77,11 @@ defmodule ReplyExpress.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "eventstore.reset": ["event_store.drop -e ReplyExpress.EventStore", "eventstore.setup"],
       "eventstore.setup": ["event_store.create", "event_store.init"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: [
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "test"
+      ]
     ]
   end
 end
