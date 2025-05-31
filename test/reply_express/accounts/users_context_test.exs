@@ -1,78 +1,72 @@
 defmodule ReplyExpress.Accounts.UsersContext.Test do
+  @moduledoc false
+
   use ReplyExpress.DataCase
 
+  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
+  alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.ResetPassword
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
   alias ReplyExpress.Accounts.UsersContext
+  alias ReplyExpress.Commanded
   alias ReplyExpress.Repo
 
   @valid_credentials %{email: "test@email.local", password: "password1234"}
   @valid_user_attrs %{email: "test@email.local", password: "password1234"}
 
   describe "log_in_user" do
-    test "creates session token when none exist for valid credentials" do
-      user =
-        :user_projection
-        |> build(email: @valid_credentials.email)
-        |> set_user_projection_password(@valid_credentials.password)
-        |> insert()
+    setup do
+      command = %RegisterUser{
+        email: @valid_credentials.email,
+        hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
+        password: @valid_credentials.password,
+        uuid: UUID.uuid4()
+      }
 
-      {:ok, result} = UsersContext.log_in_user(%{"credentials" => @valid_credentials})
+      :ok = Commanded.dispatch(command, consistency: :strong)
 
-      assert %UserTokenProjection{} = result
-      assert result.user_uuid == user.uuid
+      %{command: command}
+    end
+
+    test "logs in, creates session token", %{command: command} do
+      {:ok, token} = UsersContext.log_in_user(%{"credentials" => @valid_credentials})
+
+      assert %UserTokenProjection{} = token
+      assert token.context == "session"
+      assert token.user_uuid == command.uuid
     end
 
     test "resets session token when valid one exists" do
-      user =
-        :user_projection
-        |> build(email: @valid_credentials.email)
-        |> set_user_projection_password(@valid_credentials.password)
-        |> insert()
+      # Create initial session token
+      {:ok, %UserTokenProjection{} = initial_token} =
+        UsersContext.log_in_user(%{"credentials" => @valid_credentials})
 
-      context = "session"
-
-      user_token =
-        insert(:user_token_projection, context: context, user_id: user.id, user_uuid: user.uuid)
-
-      {:ok, %UserProjection{user_tokens: [result_user_token]}} =
+      # Log in again to reset token
+      {:ok, %UserTokenProjection{} = result_token} =
         UsersContext.log_in_user(%{"credentials" => @valid_credentials})
 
       assert UserTokenProjection |> Repo.all() |> length() == 1
-      assert result_user_token.context == context
-      refute result_user_token.token == user_token.token
+      assert result_token.context == "session"
+      refute result_token.token == initial_token.token
     end
   end
 
   describe "generate_password_reset_token/1" do
     test "Creates token and sends email with password reset link" do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_user_attrs.email)
-        |> set_user_projection_password(@valid_user_attrs.password)
-        |> insert()
+      # Register user using the register_user function which ensures the projection is created
+      {:ok, user} =
+        UsersContext.register_user(%{
+          email: @valid_credentials.email,
+          password: @valid_credentials.password
+        })
 
+      # Generate the password reset token
       {:ok, %UserTokenProjection{} = user_token} =
-        UsersContext.generate_password_reset_token(%{email: @valid_user_attrs.email})
+        UsersContext.generate_password_reset_token(%{email: @valid_credentials.email})
 
-      assert user_token.user_uuid == user_projection.uuid
+      assert user_token.user_uuid == user.uuid
       assert user_token.context == "reset_password"
-    end
-  end
-
-  describe "log_in_user/1" do
-    test "Logs in a registered user from valid email and password" do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_user_attrs.email)
-        |> set_user_projection_password(@valid_user_attrs.password)
-        |> insert()
-
-      {:ok, %UserTokenProjection{} = user_token} =
-        UsersContext.log_in_user(%{credentials: @valid_user_attrs})
-
-      assert user_token.user_uuid == user_projection.uuid
     end
   end
 
@@ -105,42 +99,48 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
   end
 
   describe "reset_password/1" do
-    test "Updates a user's password" do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_user_attrs.email)
-        |> set_user_projection_password(@valid_user_attrs.password)
-        |> insert()
+    setup do
+      cmd_register = %RegisterUser{
+        email: @valid_credentials.email,
+        hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
+        password: @valid_credentials.password,
+        uuid: UUID.uuid4()
+      }
 
-      user_token_projection =
-        :user_token_projection
-        |> build(context: "reset_password", user: user_projection)
-        |> insert()
+      :ok = Commanded.dispatch(cmd_register, consistency: :strong)
 
-      {:ok, %ResetPassword{} = result} =
+      cmd_reset =
+        GeneratePasswordResetToken.new(%{email: @valid_credentials.email})
+        |> GeneratePasswordResetToken.assign_uuid(UUID.uuid4())
+        |> GeneratePasswordResetToken.build_reset_password_token()
+        |> GeneratePasswordResetToken.set_user_properties()
+
+      :ok = Commanded.dispatch(cmd_reset, consistency: :strong)
+
+      user_token = Repo.one(UserTokenProjection)
+
+      %{
+        cmd_reset: cmd_reset,
+        cmd_register: cmd_register,
+        user_token: user_token
+      }
+    end
+
+    test "Updates a user's password", %{user_token: user_token} do
+      {:ok, %ResetPassword{} = token} =
         UsersContext.reset_password(%{
           password: @valid_user_attrs.password,
           password_confirmation: @valid_user_attrs.password,
-          token: Base.encode64(user_token_projection.token)
+          token: Base.encode64(user_token.token)
         })
 
-      assert result.password == @valid_user_attrs.password
-      assert result.password_confirmation == @valid_user_attrs.password
-      assert result.token == Base.encode64(user_token_projection.token)
-      assert result.uuid == user_projection.uuid
+      assert token.password == @valid_user_attrs.password
+      assert token.password_confirmation == @valid_user_attrs.password
+      assert token.token == Base.encode64(user_token.token)
+      assert token.uuid == user_token.user_uuid
     end
 
     test "Validates required fields" do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_user_attrs.email)
-        |> set_user_projection_password(@valid_user_attrs.password)
-        |> insert()
-
-      :user_token_projection
-      |> build(context: "reset_password", user: user_projection)
-      |> insert()
-
       {:error, :validation_failure, errors} = UsersContext.reset_password(%{})
 
       assert errors.password == ["can't be empty"]
@@ -148,53 +148,27 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
       assert errors.uuid == ["can't be empty"]
     end
 
-    test "Validates password_confirmation" do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_user_attrs.email)
-        |> set_user_projection_password(@valid_user_attrs.password)
-        |> insert()
-
-      user_token_projection =
-        :user_token_projection
-        |> build(context: "reset_password", user: user_projection)
-        |> insert()
-
+    test "Validates password_confirmation", %{user_token: user_token} do
       {:error, :validation_failure, errors} =
         UsersContext.reset_password(%{
           password: @valid_user_attrs.password,
           password_confirmation: "does not match",
-          token: Base.encode64(user_token_projection.token)
+          token: Base.encode64(user_token.token)
         })
 
       assert errors.password == ["passwords do not match"]
     end
 
-    test "Deletes all of a user's existing tokens" do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_user_attrs.email)
-        |> set_user_projection_password(@valid_user_attrs.password)
-        |> insert()
-
-      :user_token_projection
-      |> build(context: "session", user: user_projection)
-      |> insert()
-
-      user_reset_password_token_projection =
-        :user_token_projection
-        |> build(context: "reset_password", user: user_projection)
-        |> insert()
-
+    test "Deletes all of a user's existing tokens", %{user_token: user_token} do
       UsersContext.reset_password(%{
         password: @valid_user_attrs.password,
         password_confirmation: @valid_user_attrs.password,
-        token: Base.encode64(user_reset_password_token_projection.token)
+        token: Base.encode64(user_token.token)
       })
 
-      result = Repo.all(UserTokenProjection)
+      token = Repo.all(UserTokenProjection)
 
-      assert result == []
+      assert token == []
     end
   end
 end

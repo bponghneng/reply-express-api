@@ -94,9 +94,7 @@ defmodule ReplyExpress.Accounts.UsersContext do
     with :ok <- Commanded.dispatch(clear_user_tokens, consistency: :strong),
          :ok <- command_start_user_session(log_in_user) do
       log_in_user.uuid
-      |> UserByUUID.new()
-      |> preload([:user_tokens])
-      |> Repo.one()
+      |> UserTokensContext.user_session_token_by_user_uuid()
       |> case do
         nil -> {:error, :not_found}
         projection -> {:ok, projection}

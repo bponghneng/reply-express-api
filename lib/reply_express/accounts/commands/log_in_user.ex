@@ -5,6 +5,13 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
 
   defstruct [:id, credentials: nil, logged_in_at: nil, uuid: ""]
 
+  @type t :: %__MODULE__{
+          id: integer,
+          credentials: map,
+          logged_in_at: DateTime.t(),
+          uuid: String.t()
+        }
+
   use ExConstructor
   use Vex.Struct
 
@@ -19,6 +26,7 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
     %LogInUser{log_in_user | logged_in_at: Timex.now()}
   end
 
+  @spec set_id_and_uuid(LogInUser.t()) :: LogInUser.t()
   def set_id_and_uuid(%LogInUser{} = log_in_user) do
     %{id: id, uuid: uuid} =
       log_in_user
@@ -28,7 +36,7 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
           %{id: user_projection.id, uuid: user_projection.uuid}
 
         _ ->
-          nil
+          %{id: nil, uuid: ""}
       end
 
     %LogInUser{log_in_user | id: id, uuid: uuid}

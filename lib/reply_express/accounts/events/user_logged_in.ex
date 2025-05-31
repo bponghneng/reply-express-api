@@ -5,5 +5,5 @@ defmodule ReplyExpress.Accounts.Events.UserLoggedIn do
 
   @derive Jason.Encoder
 
-  defstruct [:credentials, :logged_in_at, :uuid]
+  defstruct [:email, :logged_in_at, :uuid]
 end
