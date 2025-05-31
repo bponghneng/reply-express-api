@@ -19,11 +19,11 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
     %UserTokensCleared{uuid: clear_user_tokens.uuid}
   end
 
-  def execute(%User{} = user, %LogInUser{} = login) do
+  def execute(%User{uuid: uuid, email: email}, %LogInUser{} = login) do
     %UserLoggedIn{
-      email: login.credentials.email,
+      email: email,
       logged_in_at: login.logged_in_at,
-      uuid: login.uuid
+      uuid: uuid
     }
   end
 
@@ -35,8 +35,8 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
     }
   end
 
-  def execute(%User{uuid: nil}, %ResetPassword{} = reset_password) do
-    %PasswordReset{hashed_password: reset_password.hashed_password, uuid: reset_password.uuid}
+  def execute(%User{uuid: uuid}, %ResetPassword{} = reset_password) do
+    %PasswordReset{hashed_password: reset_password.hashed_password, uuid: uuid}
   end
 
   # Mutators

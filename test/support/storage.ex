@@ -1,9 +1,16 @@
 defmodule ReplyExpress.Storage do
+  @moduledoc """
+  Provides utilities for resetting the storage state during tests.
+  """
+
   @doc """
   Reset the event store and read store databases.
   """
   def reset! do
-    :ok = Application.stop(:reply_express)
+    case Application.stop(:reply_express) do
+      :ok -> :ok
+      {:error, {:not_started, _}} -> :ok
+    end
 
     reset_eventstore!()
     reset_readstore!()
@@ -11,7 +18,7 @@ defmodule ReplyExpress.Storage do
     {:ok, _} = Application.ensure_all_started(:reply_express)
   end
 
-  defp reset_eventstore! do
+  def reset_eventstore! do
     {:ok, conn} =
       ReplyExpress.EventStore.config()
       |> EventStore.Config.default_postgrex_opts()
@@ -20,8 +27,10 @@ defmodule ReplyExpress.Storage do
     EventStore.Storage.Initializer.reset!(conn, ReplyExpress.EventStore.config())
   end
 
-  defp reset_readstore! do
-    {:ok, conn} = Postgrex.start_link(ReplyExpress.Repo.config())
+  def reset_readstore! do
+    config = Application.get_env(:reply_express, ReplyExpress.Repo)
+
+    {:ok, conn} = Postgrex.start_link(config)
 
     Postgrex.query!(conn, truncate_readstore_tables(), [])
   end

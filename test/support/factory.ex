@@ -1,10 +1,22 @@
 defmodule ReplyExpress.Factory do
   use ExMachina.Ecto, repo: ReplyExpress.Repo
 
+  alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
 
   @rand_size 32
+
+  def cmd_register_user_factory(attrs \\ %{}) do
+    password = attrs["password"] || "password"
+
+    %RegisterUser{
+      email: "test@email.local",
+      hashed_password: Pbkdf2.hash_pwd_salt(password),
+      password: password,
+      uuid: UUID.uuid4()
+    }
+  end
 
   def user_projection_factory() do
     %UserProjection{
