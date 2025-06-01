@@ -1,0 +1,7 @@
+[project]
+name = "reply-express-api-workflows"
+version = "0.1.0"
+description = "Workflow runner for building reply-express-api"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["aider-chat==0.84.0"]
