@@ -1,4 +1,9 @@
 defmodule ReplyExpress.Accounts.Services.UserNotifier do
+  @moduledoc """
+  Provides functions to send notifications to users, such as password reset instructions,
+  using the application's mailer service.
+  """
+
   import Swoosh.Email
 
   alias ReplyExpress.Mailer

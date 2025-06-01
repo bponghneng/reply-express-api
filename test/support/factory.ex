@@ -1,4 +1,6 @@
 defmodule ReplyExpress.Factory do
+  @moduledoc false
+
   use ExMachina.Ecto, repo: ReplyExpress.Repo
 
   alias ReplyExpress.Accounts.Commands.RegisterUser

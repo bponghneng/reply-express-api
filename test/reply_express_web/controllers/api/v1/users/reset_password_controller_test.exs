@@ -1,5 +1,8 @@
 defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
+  @moduledoc false
+
   use ReplyExpressWeb.ConnCase
+
   import Swoosh.TestAssertions
 
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection

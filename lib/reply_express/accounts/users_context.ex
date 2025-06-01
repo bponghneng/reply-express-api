@@ -5,17 +5,17 @@ defmodule ReplyExpress.Accounts.UsersContext do
 
   import Ecto.Query, warn: false
 
-  alias ReplyExpress.Repo
   alias ReplyExpress.Accounts.Commands.ClearUserTokens
+  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.ResetPassword
-  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Queries.UserByEmail
   alias ReplyExpress.Accounts.Queries.UserByUUID
   alias ReplyExpress.Accounts.UserTokensContext
   alias ReplyExpress.Commanded
+  alias ReplyExpress.Repo
 
   @doc """
   Sets a reset_password token for a user
