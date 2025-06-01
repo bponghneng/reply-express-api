@@ -5,17 +5,17 @@ defmodule ReplyExpress.Accounts.UsersContext do
 
   import Ecto.Query, warn: false
 
-  alias ReplyExpress.Repo
   alias ReplyExpress.Accounts.Commands.ClearUserTokens
+  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.LogInUser
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.ResetPassword
-  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Queries.UserByEmail
   alias ReplyExpress.Accounts.Queries.UserByUUID
   alias ReplyExpress.Accounts.UserTokensContext
   alias ReplyExpress.Commanded
+  alias ReplyExpress.Repo
 
   @doc """
   Sets a reset_password token for a user
@@ -85,6 +85,7 @@ defmodule ReplyExpress.Accounts.UsersContext do
     |> Commanded.dispatch(consistency: :strong)
   end
 
+  # TODO: Verify dead function
   defp reset_user_session(log_in_user) do
     clear_user_tokens =
       log_in_user

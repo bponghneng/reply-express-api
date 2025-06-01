@@ -1,4 +1,6 @@
 defmodule ReplyExpress.Accounts.Supervisor do
+  @moduledoc false
+
   use Supervisor
 
   alias ReplyExpress.Accounts.Projectors.User, as: UserProjector

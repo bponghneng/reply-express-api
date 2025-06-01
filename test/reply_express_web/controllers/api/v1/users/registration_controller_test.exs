@@ -1,4 +1,6 @@
 defmodule ReplyExpressWeb.Users.RegistrationControllerTest do
+  @moduledoc false
+
   use ReplyExpressWeb.ConnCase
 
   describe "POST /api/v1/users/register" do

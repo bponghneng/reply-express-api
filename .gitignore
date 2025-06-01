@@ -25,3 +25,17 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 reply_express-*.tar
 
+# IDE files
+.elixir_ls
+.vscode
+
+# Workflow files
+.aider.tags.cache.v4
+.aider.chat.history.md
+.aider.conf.yml
+.aider.input.history
+.venv
+
+# Local logs
+erl_crash.dump
+
