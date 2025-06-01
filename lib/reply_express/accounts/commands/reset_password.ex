@@ -27,8 +27,6 @@ defmodule ReplyExpress.Accounts.Commands.ResetPassword do
     by: &ResetPasswordTokenExists.validate/2
   )
 
-  validates(:uuid, presence: [message: "can't be empty"])
-
   @doc """
   Hash the password and preserve the original password
   """

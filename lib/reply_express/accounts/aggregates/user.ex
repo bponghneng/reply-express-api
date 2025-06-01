@@ -14,7 +14,6 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   alias ReplyExpress.Accounts.Events.UserRegistered
   alias ReplyExpress.Accounts.Events.UserTokensCleared
 
-
   defstruct [:email, :hashed_password, :logged_in_at, :uuid]
 
   def execute(%User{}, %ClearUserTokens{} = clear_user_tokens) do
@@ -41,7 +40,6 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
     %PasswordReset{hashed_password: reset_password.hashed_password, uuid: uuid}
   end
 
-  
   # Mutators
   def apply(%User{} = user, %UserLoggedIn{} = logged_in) do
     %User{user | logged_in_at: logged_in.logged_in_at, uuid: logged_in.uuid}
@@ -54,6 +52,10 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
         email: registered.email,
         hashed_password: registered.hashed_password
     }
+  end
+
+  def apply(%User{} = user, %PasswordReset{} = reset) do
+    %User{user | hashed_password: reset.hashed_password}
   end
 
   def apply(%User{} = user, _event), do: user
