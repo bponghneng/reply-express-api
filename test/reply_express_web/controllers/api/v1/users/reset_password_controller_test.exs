@@ -3,65 +3,81 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
 
   use ReplyExpressWeb.ConnCase
 
-  import Swoosh.TestAssertions
+  import ReplyExpress.Factory
 
-  alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
+  import ReplyExpress.Factory
 
-  #  @invalid_credentials %{email: "test@email", password: "1234"}
-  @valid_credentials %{email: "test@email.local", password: "password1234"}
+  @valid_password "password1234"
+  @valid_email "test@email.local"
 
   describe "POST /api/v1/users/reset_password" do
-    test "creates new reset password token and sends notification email", context do
-      user_projection =
+    setup do
+      user =
         :user_projection
-        |> build(email: @valid_credentials.email)
-        |> set_user_projection_password(@valid_credentials.password)
+        |> build(email: @valid_email)
+        |> set_user_projection_password(@valid_password)
         |> insert()
 
+      # Simulate the generation of a reset password token
       token_context = "reset_password"
 
-      :user_token_projection
-      |> build(
-        context: token_context,
-        user_id: user_projection.id,
-        user_uuid: user_projection.uuid
-      )
+      user_token =
+        :user_token_projection
+        |> build(user: user, context: token_context)
+        |> insert()
 
-      context.conn
-      |> post(~p"/api/v1/users/reset_password", %{"email" => @valid_credentials.email})
-      |> response(204)
+      encoded_token = Base.encode64(user_token.token)
 
-      [user_token_projection] = Repo.all(UserTokenProjection)
-
-      assert user_token_projection.context == token_context
-      assert user_token_projection.user_id == user_token_projection.user_id
+      {:ok, user: user, user_token: user_token, encoded_token: encoded_token}
     end
 
-    test "sends notification email", context do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_credentials.email)
-        |> set_user_projection_password(@valid_credentials.password)
-        |> insert()
+    test "successfully resets password and returns 204", %{
+      conn: conn,
+      encoded_token: encoded_token,
+      user: user
+    } do
+      params = %{
+        "email" => user.email,
+        "password" => @valid_password,
+        "password_confirmation" => @valid_password,
+        "token" => encoded_token
+      }
 
-      token_context = "reset_password"
+      result =
+        conn
+        |> post(~p"/api/v1/users/reset_password", params)
+        |> response(204)
 
-      :user_token_projection
-      |> build(
-        context: token_context,
-        user_id: user_projection.id,
-        user_uuid: user_projection.uuid
-      )
+      assert result == ""
+    end
 
-      context.conn
-      |> post(~p"/api/v1/users/reset_password", %{"email" => @valid_credentials.email})
-      |> response(204)
+    test "returns 422 when params are missing", %{conn: conn} do
+      result =
+        conn
+        |> post(~p"/api/v1/users/reset_password", %{})
+        |> json_response(422)
 
-      assert_email_sent(fn sent_email ->
-        [{_sent_to_name, sent_to_email}] = sent_email.to
+      assert result["errors"]["password"] == ["can't be empty"]
+      assert result["errors"]["token"] == ["can't be empty"]
+      assert result["errors"]["uuid"] == ["can't be empty"]
+    end
 
-        assert sent_to_email == user_projection.email
-      end)
+    test "returns 422 for invalid token", %{conn: conn, user: user} do
+      params = %{
+        "email" => user.email,
+        "password" => @valid_password,
+        "password_confirmation" => @valid_password,
+        "token" => Base.encode64("invalidtoken"),
+        "uuid" => user.uuid
+      }
+
+      result =
+        conn
+        |> post(~p"/api/v1/users/reset_password", params)
+        |> json_response(422)
+
+      assert result["errors"]["token"] == ["invalid token"]
+      assert result["errors"]["uuid"] == ["can't be empty"]
     end
   end
 end

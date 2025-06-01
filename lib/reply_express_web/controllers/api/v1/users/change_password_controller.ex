@@ -1,4 +1,4 @@
-defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordController do
+defmodule ReplyExpressWeb.API.V1.Users.ChangePasswordController do
   @moduledoc """
   Controller for handling password change requests
   """
