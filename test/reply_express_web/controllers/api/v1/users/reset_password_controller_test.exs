@@ -3,43 +3,44 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
 
   use ReplyExpressWeb.ConnCase
 
-  import ReplyExpress.Factory
+  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
+  alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
+  alias ReplyExpress.Commanded
 
-  import ReplyExpress.Factory
+  @valid_credentials %{email: "test@email.local", password: "password1234"}
 
   describe "POST /api/v1/users/reset-password" do
-  @valid_email "test@email.local"
-
-  describe "POST /api/v1/users/reset_password" do
     setup do
-      user =
-        :user_projection
-        |> build(email: @valid_email)
-        |> set_user_projection_password(@valid_password)
-        |> insert()
+      cmd_register_user = %RegisterUser{
+        email: @valid_credentials.email,
+        hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
+        password: @valid_credentials.password,
+        uuid: UUID.uuid4()
+      }
 
-      # Simulate the generation of a reset password token
-      token_context = "reset_password"
+      :ok = Commanded.dispatch(cmd_register_user, consistency: :strong)
 
-      user_token =
-        :user_token_projection
-        |> build(user: user, context: token_context)
-        |> insert()
+      cmd_reset =
+        GeneratePasswordResetToken.new(%{email: @valid_credentials.email})
+        |> GeneratePasswordResetToken.assign_uuid(UUID.uuid4())
+        |> GeneratePasswordResetToken.build_reset_password_token()
+        |> GeneratePasswordResetToken.set_user_properties()
 
-      encoded_token = Base.encode64(user_token.token)
+      :ok = Commanded.dispatch(cmd_reset, consistency: :strong)
 
-      {:ok, user: user, user_token: user_token, encoded_token: encoded_token}
+      user_token = Repo.one(UserTokenProjection)
+
+      {:ok, encoded_token: Base.encode64(user_token.token)}
     end
 
     test "successfully resets password and returns 204", %{
       conn: conn,
-      encoded_token: encoded_token,
-      user: user
+      encoded_token: encoded_token
     } do
       params = %{
-        "email" => user.email,
-        "password" => @valid_password,
-        "password_confirmation" => @valid_password,
+        "password" => @valid_credentials.password,
+        "password_confirmation" => @valid_credentials.password,
         "token" => encoded_token
       }
 
@@ -59,16 +60,13 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
 
       assert result["errors"]["password"] == ["can't be empty"]
       assert result["errors"]["token"] == ["can't be empty"]
-      assert result["errors"]["uuid"] == ["can't be empty"]
     end
 
-    test "returns 422 for invalid token", %{conn: conn, user: user} do
+    test "returns 422 for invalid token", %{conn: conn} do
       params = %{
-        "email" => user.email,
-        "password" => @valid_password,
-        "password_confirmation" => @valid_password,
-        "token" => Base.encode64("invalidtoken"),
-        "uuid" => user.uuid
+        "password" => @valid_credentials.password,
+        "password_confirmation" => @valid_credentials.password,
+        "token" => Base.encode64("invalidtoken")
       }
 
       result =
@@ -77,7 +75,6 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
         |> json_response(422)
 
       assert result["errors"]["token"] == ["invalid token"]
-      assert result["errors"]["uuid"] == ["can't be empty"]
     end
   end
 end

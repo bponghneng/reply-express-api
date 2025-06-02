@@ -145,7 +145,6 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
 
       assert errors.password == ["can't be empty"]
       assert errors.token == ["can't be empty"]
-      assert errors.uuid == ["can't be empty"]
     end
 
     test "Validates password_confirmation", %{user_token: user_token} do

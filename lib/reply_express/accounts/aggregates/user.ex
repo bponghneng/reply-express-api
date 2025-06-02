@@ -55,7 +55,7 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   end
 
   def apply(%User{} = user, %PasswordReset{} = reset) do
-    %User{user | hashed_password: reset.hashed_password}
+    %User{user | hashed_password: reset.hashed_password, uuid: user.uuid}
   end
 
   def apply(%User{} = user, _event), do: user
