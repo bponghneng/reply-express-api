@@ -39,3 +39,5 @@ reply_express-*.tar
 # Local logs
 erl_crash.dump
 
+# Local config
+dev.local.exs

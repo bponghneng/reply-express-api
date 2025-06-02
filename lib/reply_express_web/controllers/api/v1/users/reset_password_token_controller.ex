@@ -15,7 +15,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordTokenController do
 
       UserNotifier.deliver_reset_password_instructions(
         {"", user_token_projection.user.email},
-        "http://localhost:4000/api/v1/users/change_password",
+        Application.get_env(:reply_express, :reset_password_url),
         token
       )
 

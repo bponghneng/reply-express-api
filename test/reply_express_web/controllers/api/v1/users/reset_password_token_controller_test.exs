@@ -5,62 +5,49 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordTokenControllerTest do
 
   import Swoosh.TestAssertions
 
+  alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
+  alias ReplyExpress.Commanded
 
-  #  @invalid_credentials %{email: "test@email", password: "1234"}
   @valid_credentials %{email: "test@email.local", password: "password1234"}
 
   describe "POST /api/v1/users/reset-password-token" do
-    test "creates new reset password token and sends notification email", context do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_credentials.email)
-        |> set_user_projection_password(@valid_credentials.password)
-        |> insert()
+    setup do
+      cmd_register = %RegisterUser{
+        email: @valid_credentials.email,
+        hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
+        password: @valid_credentials.password,
+        uuid: UUID.uuid4()
+      }
 
-      token_context = "reset_password"
+      :ok = Commanded.dispatch(cmd_register, consistency: :strong)
 
-      :user_token_projection
-      |> build(
-        context: token_context,
-        user_id: user_projection.id,
-        user_uuid: user_projection.uuid
-      )
+      %{cmd_register: cmd_register}
+    end
 
-      context.conn
-      |> post(~p"/api/v1/users/reset-password-token", %{"email" => @valid_credentials.email})
+    test "creates new reset password token and sends notification email", %{
+      cmd_register: cmd_register,
+      conn: conn
+    } do
+      conn
+      |> post(~p"/api/v1/users/reset-password-token", %{"email" => cmd_register.email})
       |> response(204)
 
       [user_token_projection] = Repo.all(UserTokenProjection)
 
-      assert user_token_projection.context == token_context
+      assert user_token_projection.context == "reset_password"
       assert user_token_projection.user_id == user_token_projection.user_id
     end
 
-    test "sends notification email", context do
-      user_projection =
-        :user_projection
-        |> build(email: @valid_credentials.email)
-        |> set_user_projection_password(@valid_credentials.password)
-        |> insert()
-
-      token_context = "reset_password"
-
-      :user_token_projection
-      |> build(
-        context: token_context,
-        user_id: user_projection.id,
-        user_uuid: user_projection.uuid
-      )
-
-      context.conn
-      |> post(~p"/api/v1/users/reset-password-token", %{"email" => @valid_credentials.email})
+    test "sends notification email", %{cmd_register: cmd_register, conn: conn} do
+      conn
+      |> post(~p"/api/v1/users/reset-password-token", %{"email" => cmd_register.email})
       |> response(204)
 
       assert_email_sent(fn sent_email ->
         [{_sent_to_name, sent_to_email}] = sent_email.to
 
-        assert sent_to_email == user_projection.email
+        assert sent_to_email == cmd_register.email
       end)
     end
   end

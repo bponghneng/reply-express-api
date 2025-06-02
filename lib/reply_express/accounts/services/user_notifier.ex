@@ -20,7 +20,7 @@ defmodule ReplyExpress.Accounts.Services.UserNotifier do
 
     You can reset your password by visiting the URL below:
 
-    #{url}?token=#{token}
+    #{url}#{if is_binary(url) and String.contains?(url, "?"), do: "&", else: "?"}token=#{URI.encode_www_form(token)}
 
     If you didn't request this change, please ignore this.
 
