@@ -72,11 +72,13 @@ defmodule ReplyExpress.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "eventstore.reset": ["event_store.drop -e ReplyExpress.EventStore", "eventstore.setup"],
       "eventstore.setup": ["event_store.create", "event_store.init"],
+      "reset.dev": ["eventstore.reset", "ecto.reset"],
+      "reset.test": ["MIX_ENV=test eventstore.reset", "MIX_ENV=test ecto.reset"],
+      setup: ["deps.get", "ecto.setup"],
       test: [
         "ecto.create --quiet",
         "ecto.migrate --quiet",
