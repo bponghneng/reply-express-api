@@ -10,9 +10,14 @@ defmodule ReplyExpress.Accounts.Projectors.User do
     repo: ReplyExpress.Repo
 
   alias Ecto.Multi
+  alias ReplyExpress.Accounts.Events.PasswordReset
   alias ReplyExpress.Accounts.Events.UserLoggedIn
   alias ReplyExpress.Accounts.Events.UserRegistered
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
+
+  project(%PasswordReset{} = reset, _metadata, fn multi ->
+    update_user(multi, reset.uuid, hashed_password: reset.hashed_password)
+  end)
 
   project(%UserLoggedIn{} = user_logged_in, _metadata, fn multi ->
     logged_in_at =

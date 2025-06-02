@@ -11,7 +11,7 @@ defmodule ReplyExpress.Accounts.Services.UserNotifier do
   @doc """
   Deliver instructions to reset a user password.
   """
-  def deliver_reset_password_instructions({name, _email} = to, url) do
+  def deliver_reset_password_instructions({name, _email} = to, url, token) do
     deliver(to, "Reset password instructions", """
 
     ==============================
@@ -20,7 +20,7 @@ defmodule ReplyExpress.Accounts.Services.UserNotifier do
 
     You can reset your password by visiting the URL below:
 
-    #{url}
+    #{url}#{if is_binary(url) and String.contains?(url, "?"), do: "&", else: "?"}token=#{URI.encode_www_form(token)}
 
     If you didn't request this change, please ignore this.
 

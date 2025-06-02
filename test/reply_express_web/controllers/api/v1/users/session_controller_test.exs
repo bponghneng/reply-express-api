@@ -15,7 +15,7 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionControllerTest do
   @invalid_credentials %{email: "test@email", password: "1234"}
   @valid_credentials %{email: "test@email.local", password: "password1234"}
 
-  describe "POST /api/v1/users/log_in" do
+  describe "POST /api/v1/users/login" do
     test "sets cookie with token for session tracking", context do
       command = %RegisterUser{
         email: @valid_credentials.email,
@@ -27,7 +27,7 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionControllerTest do
       :ok = Commanded.dispatch(command, consistency: :strong)
 
       response =
-        post(context.conn, ~p"/api/v1/users/log_in", %{"credentials" => @valid_credentials})
+        post(context.conn, ~p"/api/v1/users/login", %{"credentials" => @valid_credentials})
 
       token = UserToken |> Repo.one() |> Map.get(:token)
 
@@ -61,7 +61,7 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionControllerTest do
 
       response =
         context.conn
-        |> post(~p"/api/v1/users/log_in", %{"credentials" => @invalid_credentials})
+        |> post(~p"/api/v1/users/login", %{"credentials" => @invalid_credentials})
         |> json_response(422)
 
       assert response["errors"]["credentials"] == ["are invalid"]
@@ -70,7 +70,7 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionControllerTest do
     test "handles empty POST body", context do
       response =
         context.conn
-        |> post(~p"/api/v1/users/log_in", %{})
+        |> post(~p"/api/v1/users/login", %{})
         |> json_response(422)
 
       assert response["errors"]["credentials"] == ["is required"]

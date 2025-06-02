@@ -85,7 +85,6 @@ defmodule ReplyExpress.Accounts.UsersContext do
     |> Commanded.dispatch(consistency: :strong)
   end
 
-  # TODO: Verify dead function
   defp reset_user_session(log_in_user) do
     clear_user_tokens =
       log_in_user

@@ -21,6 +21,7 @@
 
 To start your Phoenix server:
 
+  * Copy `dev.local.example.exs` to `dev.local.exs` and fill in the values
   * Run `mix setup` to install and setup dependencies
   * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
 

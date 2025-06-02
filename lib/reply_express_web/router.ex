@@ -27,10 +27,10 @@ defmodule ReplyExpressWeb.Router do
 
     scope path: "/users", alias: Users do
       # User authentication
-      post "/log_in", SessionController, :create
+      post "/login", SessionController, :create
       post "/register", RegistrationController, :create
-      post "/reset_password_token", ResetPasswordTokenController, :create
-      post "/reset_password", ResetPasswordController, :create
+      post "/reset-password-token", ResetPasswordTokenController, :create
+      post "/reset-password", ResetPasswordController, :create
     end
   end
 end

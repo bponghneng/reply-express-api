@@ -83,3 +83,7 @@ config :swoosh, :api_client, false
 #  port: 1025,
 #  retries: 2,
 #  no_mx_lookups: false
+
+# Import dev local env specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "dev.local.exs"
