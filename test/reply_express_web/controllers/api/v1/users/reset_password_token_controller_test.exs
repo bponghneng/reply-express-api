@@ -10,7 +10,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordTokenControllerTest do
   #  @invalid_credentials %{email: "test@email", password: "1234"}
   @valid_credentials %{email: "test@email.local", password: "password1234"}
 
-  describe "POST /api/v1/users/reset_password_token" do
+  describe "POST /api/v1/users/reset-password-token" do
     test "creates new reset password token and sends notification email", context do
       user_projection =
         :user_projection
@@ -28,7 +28,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordTokenControllerTest do
       )
 
       context.conn
-      |> post(~p"/api/v1/users/reset_password_token", %{"email" => @valid_credentials.email})
+      |> post(~p"/api/v1/users/reset-password-token", %{"email" => @valid_credentials.email})
       |> response(204)
 
       [user_token_projection] = Repo.all(UserTokenProjection)
@@ -54,7 +54,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordTokenControllerTest do
       )
 
       context.conn
-      |> post(~p"/api/v1/users/reset_password_token", %{"email" => @valid_credentials.email})
+      |> post(~p"/api/v1/users/reset-password-token", %{"email" => @valid_credentials.email})
       |> response(204)
 
       assert_email_sent(fn sent_email ->

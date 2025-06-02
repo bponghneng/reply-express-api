@@ -7,7 +7,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
 
   import ReplyExpress.Factory
 
-  @valid_password "password1234"
+  describe "POST /api/v1/users/reset-password" do
   @valid_email "test@email.local"
 
   describe "POST /api/v1/users/reset_password" do
@@ -45,7 +45,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
 
       result =
         conn
-        |> post(~p"/api/v1/users/reset_password", params)
+        |> post(~p"/api/v1/users/reset-password", params)
         |> response(204)
 
       assert result == ""
@@ -54,7 +54,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
     test "returns 422 when params are missing", %{conn: conn} do
       result =
         conn
-        |> post(~p"/api/v1/users/reset_password", %{})
+        |> post(~p"/api/v1/users/reset-password", %{})
         |> json_response(422)
 
       assert result["errors"]["password"] == ["can't be empty"]
@@ -73,7 +73,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
 
       result =
         conn
-        |> post(~p"/api/v1/users/reset_password", params)
+        |> post(~p"/api/v1/users/reset-password", params)
         |> json_response(422)
 
       assert result["errors"]["token"] == ["invalid token"]
