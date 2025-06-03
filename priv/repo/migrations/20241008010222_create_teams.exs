@@ -9,7 +9,6 @@ defmodule ReplyExpress.Repo.Migrations.CreateTeams do
       timestamps()
     end
 
-    create unique_index(:teams, [:name])
     create unique_index(:teams, [:uuid])
   end
 end

@@ -31,20 +31,12 @@ def new_endpoint(spec_file_name: str):
     # Setup BIG THREE: context, prompt, and model
 
     # Files to be edited
-    context_editable = [
-        "lib/reply_express/accounts/aggregates/user.ex",
-        "lib/reply_express/accounts/users_context.ex",
-        "lib/reply_express/accounts/user_tokens_context.ex",
-        "lib/reply_express_web/router.ex",
-    ]
+    context_editable = ["lib/reply_express_web/router.ex"]
 
     # Files that are read-only references
     context_read_only = [
-        "lib/reply_express/accounts/commands/generate_password_reset_token.ex",
-        "lib/reply_express/accounts/commands/register_user.ex",
-        "lib/reply_express/accounts/events/password_reset_token_generated.ex",
-        "lib/reply_express_web/controllers/api/v1/users/reset_password_controller.ex",
         "mix.exs",
+        "test/reply_express/accounts/users_context_test.exs",
     ]
 
     # Define the prompt for the AI model
