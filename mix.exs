@@ -1,4 +1,8 @@
 defmodule ReplyExpress.MixProject do
+  @moduledoc """
+  Mix project configuration for the ReplyExpress application.
+  Handles dependencies, compilation, and project settings.
+  """
   use Mix.Project
 
   def project do
@@ -72,11 +76,15 @@ defmodule ReplyExpress.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "eventstore.reset": ["event_store.drop -e ReplyExpress.EventStore", "eventstore.setup"],
       "eventstore.setup": ["event_store.create", "event_store.init"],
+      "reset.dev": ["eventstore.reset", "ecto.reset"],
+      "eventstore.reset.test": [fn _ -> Mix.env(:test) end, "eventstore.reset"],
+      "ecto.reset.test": [fn _ -> Mix.env(:test) end, "ecto.reset"],
+      "reset.test": ["eventstore.reset.test", "ecto.reset.test"],
+      setup: ["deps.get", "ecto.setup"],
       test: [
         "ecto.create --quiet",
         "ecto.migrate --quiet",

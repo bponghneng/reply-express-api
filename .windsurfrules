@@ -15,3 +15,7 @@
 - Follow the [Elixir Style Guide](https://github.com/lexmag/elixir-style-guide).
 - Prefer keyword-based queries over pipe-based queries
   - For example, use `User |> where(age: 18) |> select([u], u)` over `from(u in User, where: u.age > 18, select: u)`.
+
+## Local Environment
+- When directed to reset the dev database, run `mix eventstore.reset` and `mix ecto.reset`.
+- When directed to reset the test database, run `MIX_ENV=test mix eventstore.reset` and `MIX_ENV=test mix ecto.reset`.
