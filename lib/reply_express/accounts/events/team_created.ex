@@ -4,5 +4,11 @@ defmodule ReplyExpress.Accounts.Events.TeamCreated do
   """
 
   @derive Jason.Encoder
+
+  @type t() :: %__MODULE__{
+    name: String.t(),
+    uuid: String.t()
+  }
+
   defstruct [:name, :uuid]
 end

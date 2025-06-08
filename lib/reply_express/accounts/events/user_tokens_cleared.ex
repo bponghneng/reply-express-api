@@ -5,5 +5,9 @@ defmodule ReplyExpress.Accounts.Events.UserTokensCleared do
 
   @derive Jason.Encoder
 
+  @type t :: %__MODULE__{
+    uuid: String.t()
+  }
+
   defstruct uuid: ""
 end
