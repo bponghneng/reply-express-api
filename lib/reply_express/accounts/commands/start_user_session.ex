@@ -3,13 +3,6 @@ defmodule ReplyExpress.Accounts.Commands.StartUserSession do
   Command to start a session for a logged in user, including sanitization and validation fns
   """
 
-  defstruct context: "session",
-            token: nil,
-            logged_in_at: nil,
-            user_id: nil,
-            user_uuid: "",
-            uuid: ""
-
   use ExConstructor
   use Vex.Struct
 
@@ -17,7 +10,23 @@ defmodule ReplyExpress.Accounts.Commands.StartUserSession do
   alias ReplyExpress.Accounts.Validators.UniqueSessionToken
   alias ReplyExpress.Accounts.Validators.LoggedInAtNotExpired
 
+  @type t :: %__MODULE__{
+    context: String.t(),
+    token: String.t() | nil,
+    logged_in_at: DateTime.t() | nil,
+    user_id: integer() | nil,
+    user_uuid: String.t(),
+    uuid: String.t()
+  }
+
   @rand_size 32
+
+  defstruct context: "session",
+            token: nil,
+            logged_in_at: nil,
+            user_id: nil,
+            user_uuid: "",
+            uuid: ""
 
   validates(:context, presence: [message: "can't be empty"], inclusion: ["session"])
 

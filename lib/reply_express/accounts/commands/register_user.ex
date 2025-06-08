@@ -3,17 +3,24 @@ defmodule ReplyExpress.Accounts.Commands.RegisterUser do
   Command for registering a new user, including sanitization and validation fns
   """
 
-  defstruct email: "",
-            hashed_password: "",
-            password: "",
-            uuid: ""
-
   use ExConstructor
   use Vex.Struct
 
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Validators.UniqueEmail
   alias Vex.ErrorRenderers.Parameterized
+
+  @type t :: %__MODULE__{
+    email: String.t(),
+    hashed_password: String.t(),
+    password: String.t(),
+    uuid: String.t()
+  }
+
+  defstruct email: "",
+            hashed_password: "",
+            password: "",
+            uuid: ""
 
   validates(:email,
     presence: [message: "can't be empty"],

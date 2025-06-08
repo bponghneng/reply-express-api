@@ -3,7 +3,13 @@ defmodule ReplyExpress.Accounts.Commands.Login do
   Command to log in a registered user, including sanitization and validation fns
   """
 
-  defstruct [:id, credentials: nil, logged_in_at: nil, uuid: ""]
+  use ExConstructor
+  use Vex.Struct
+
+  alias ReplyExpress.Accounts.Commands.Login
+  alias ReplyExpress.Accounts.Projections.User, as: UserProjection
+  alias ReplyExpress.Accounts.UsersContext
+  alias ReplyExpress.Accounts.Validators.ValidCredentials
 
   @type t :: %__MODULE__{
           id: integer,
@@ -12,13 +18,7 @@ defmodule ReplyExpress.Accounts.Commands.Login do
           uuid: String.t()
         }
 
-  use ExConstructor
-  use Vex.Struct
-
-  alias ReplyExpress.Accounts.Commands.Login
-  alias ReplyExpress.Accounts.Projections.User, as: UserProjection
-  alias ReplyExpress.Accounts.UsersContext
-  alias ReplyExpress.Accounts.Validators.ValidCredentials
+  defstruct [:id, credentials: nil, logged_in_at: nil, uuid: ""]
 
   validates(:credentials, presence: [message: "can't be empty"], by: &ValidCredentials.validate/2)
 
