@@ -5,7 +5,7 @@ defmodule ReplyExpress.Accounts.UserTokensContextTest do
 
   use ReplyExpress.DataCase
 
-  alias ReplyExpress.Accounts.Commands.LogInUser
+  alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
@@ -30,7 +30,7 @@ defmodule ReplyExpress.Accounts.UserTokensContextTest do
 
       %UserProjection{id: user_id} = Repo.one(UserProjection)
 
-      cmd_login = %LogInUser{
+      cmd_login = %Login{
         credentials: @valid_credentials,
         id: user_id,
         logged_in_at: Timex.now(),

@@ -1,4 +1,4 @@
-defmodule ReplyExpress.Accounts.Commands.LogInUser do
+defmodule ReplyExpress.Accounts.Commands.Login do
   @moduledoc """
   Command to log in a registered user, including sanitization and validation fns
   """
@@ -15,21 +15,21 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
   use ExConstructor
   use Vex.Struct
 
-  alias ReplyExpress.Accounts.Commands.LogInUser
+  alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.UsersContext
   alias ReplyExpress.Accounts.Validators.ValidCredentials
 
   validates(:credentials, presence: [message: "can't be empty"], by: &ValidCredentials.validate/2)
 
-  def set_logged_in_at(%LogInUser{} = log_in_user) do
-    %LogInUser{log_in_user | logged_in_at: Timex.now()}
+  def set_logged_in_at(%Login{} = login) do
+    %Login{login | logged_in_at: Timex.now()}
   end
 
-  @spec set_id_and_uuid(LogInUser.t()) :: LogInUser.t()
-  def set_id_and_uuid(%LogInUser{} = log_in_user) do
+  @spec set_id_and_uuid(Login.t()) :: Login.t()
+  def set_id_and_uuid(%Login{} = login) do
     %{id: id, uuid: uuid} =
-      log_in_user
+      login
       |> user_by_email()
       |> case do
         %UserProjection{} = user_projection ->
@@ -39,10 +39,10 @@ defmodule ReplyExpress.Accounts.Commands.LogInUser do
           %{id: nil, uuid: ""}
       end
 
-    %LogInUser{log_in_user | id: id, uuid: uuid}
+    %Login{login | id: id, uuid: uuid}
   end
 
-  defp user_by_email(%LogInUser{} = log_in_user) do
-    UsersContext.user_by_email(log_in_user.credentials.email)
+  defp user_by_email(%Login{} = login) do
+    UsersContext.user_by_email(login.credentials.email)
   end
 end

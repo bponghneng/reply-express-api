@@ -5,7 +5,7 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
 
   alias ReplyExpress.Accounts.Aggregates.User
   alias ReplyExpress.Accounts.Commands.ClearUserTokens
-  alias ReplyExpress.Accounts.Commands.LogInUser
+  alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.ResetPassword
 
@@ -20,7 +20,7 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
     %UserTokensCleared{uuid: clear_user_tokens.uuid}
   end
 
-  def execute(%User{uuid: uuid, email: email}, %LogInUser{} = login) do
+  def execute(%User{uuid: uuid, email: email}, %Login{} = login) do
     %UserLoggedIn{
       email: email,
       logged_in_at: login.logged_in_at,

@@ -15,7 +15,7 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
   @valid_credentials %{email: "test@email.local", password: "password1234"}
   @valid_user_attrs %{email: "test@email.local", password: "password1234"}
 
-  describe "log_in_user" do
+  describe "login" do
     setup do
       command = %RegisterUser{
         email: @valid_credentials.email,
@@ -30,7 +30,7 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
     end
 
     test "logs in, creates session token", %{command: command} do
-      {:ok, token} = UsersContext.log_in_user(%{"credentials" => @valid_credentials})
+      {:ok, token} = UsersContext.login(%{"credentials" => @valid_credentials})
 
       assert %UserTokenProjection{} = token
       assert token.context == "session"
@@ -40,11 +40,11 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
     test "resets session token when valid one exists" do
       # Create initial session token
       {:ok, %UserTokenProjection{} = initial_token} =
-        UsersContext.log_in_user(%{"credentials" => @valid_credentials})
+        UsersContext.login(%{"credentials" => @valid_credentials})
 
       # Log in again to reset token
       {:ok, %UserTokenProjection{} = result_token} =
-        UsersContext.log_in_user(%{"credentials" => @valid_credentials})
+        UsersContext.login(%{"credentials" => @valid_credentials})
 
       assert UserTokenProjection |> Repo.all() |> length() == 1
       assert result_token.context == "session"
