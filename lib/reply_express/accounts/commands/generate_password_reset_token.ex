@@ -3,19 +3,27 @@ defmodule ReplyExpress.Accounts.Commands.GeneratePasswordResetToken do
   Command to log in a registered user, including sanitization and validation fns
   """
 
-  defstruct email: "",
-            token: nil,
-            user_id: "",
-            user_uuid: "",
-            uuid: ""
-
   use ExConstructor
   use Vex.Struct
 
   alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.UsersContext
 
+  @type t :: %__MODULE__{
+    email: String.t(),
+    token: String.t() | nil,
+    user_id: String.t(),
+    user_uuid: String.t(),
+    uuid: String.t()
+  }
+
   @rand_size 32
+
+  defstruct email: "",
+            token: nil,
+            user_id: "",
+            user_uuid: "",
+            uuid: ""
 
   @doc """
   Assign a unique identity for the user token

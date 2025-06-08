@@ -3,12 +3,6 @@ defmodule ReplyExpress.Accounts.Commands.ResetPassword do
   Command to reset a user's password
   """
 
-  defstruct hashed_password: "",
-            password: "",
-            password_confirmation: "",
-            token: nil,
-            uuid: ""
-
   use ExConstructor
   use Vex.Struct
 
@@ -16,6 +10,20 @@ defmodule ReplyExpress.Accounts.Commands.ResetPassword do
   #  alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
   alias ReplyExpress.Accounts.Validators.ResetPasswordTokenExists
   alias ReplyExpress.Accounts.UserTokensContext
+
+  @type t :: %__MODULE__{
+    hashed_password: String.t(),
+    password: String.t(),
+    password_confirmation: String.t(),
+    token: String.t() | nil,
+    uuid: String.t()
+  }
+
+  defstruct hashed_password: "",
+            password: "",
+            password_confirmation: "",
+            token: nil,
+            uuid: ""
 
   validates(:password,
     presence: [message: "can't be empty"],

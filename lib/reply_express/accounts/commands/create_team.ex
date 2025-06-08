@@ -3,10 +3,15 @@ defmodule ReplyExpress.Accounts.Commands.CreateTeam do
   Command for creating a new team.
   """
 
-  defstruct [:name, :uuid]
-
   use ExConstructor
   use Vex.Struct
+
+  @type t :: %__MODULE__{
+    name: String.t(),
+    uuid: String.t()
+  }
+
+  defstruct [:name, :uuid]
 
   validates :name, presence: [message: "can't be empty"]
   validates :uuid, presence: [message: "can't be empty"]
