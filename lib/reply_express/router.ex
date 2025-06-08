@@ -11,7 +11,7 @@ defmodule ReplyExpress.Router do
   alias ReplyExpress.Accounts.Commands.ClearUserTokens
   alias ReplyExpress.Accounts.Commands.CreateTeam
   alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
-  alias ReplyExpress.Accounts.Commands.LogInUser
+  alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.ResetPassword
   alias ReplyExpress.Accounts.Commands.StartUserSession
@@ -20,6 +20,6 @@ defmodule ReplyExpress.Router do
   middleware(Validate)
 
   dispatch([CreateTeam], to: Team, identity: :uuid)
-  dispatch([ClearUserTokens, LogInUser, RegisterUser, ResetPassword], to: User, identity: :uuid)
+  dispatch([ClearUserTokens, Login, RegisterUser, ResetPassword], to: User, identity: :uuid)
   dispatch([GeneratePasswordResetToken, StartUserSession], to: UserToken, identity: :uuid)
 end

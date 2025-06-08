@@ -14,7 +14,7 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionController do
   """
   def create(conn, %{"credentials" => credentials}) do
     result =
-      UsersContext.log_in_user(%{
+      UsersContext.login(%{
         credentials: %{email: credentials["email"], password: credentials["password"]}
       })
 

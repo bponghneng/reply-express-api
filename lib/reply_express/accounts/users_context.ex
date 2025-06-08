@@ -7,7 +7,7 @@ defmodule ReplyExpress.Accounts.UsersContext do
 
   alias ReplyExpress.Accounts.Commands.ClearUserTokens
   alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
-  alias ReplyExpress.Accounts.Commands.LogInUser
+  alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.ResetPassword
   alias ReplyExpress.Accounts.Commands.StartUserSession
@@ -46,16 +46,16 @@ defmodule ReplyExpress.Accounts.UsersContext do
   @doc """
   Authenticates a user.
   """
-  def log_in_user(attrs) do
-    log_in_user =
+  def login(attrs) do
+    login_command =
       attrs
-      |> LogInUser.new()
-      |> LogInUser.set_logged_in_at()
-      |> LogInUser.set_id_and_uuid()
+      |> Login.new()
+      |> Login.set_logged_in_at()
+      |> Login.set_id_and_uuid()
 
-    with :ok <- Commanded.dispatch(log_in_user, consistency: :strong),
-         :ok <- command_start_user_session(log_in_user) do
-      case UserTokensContext.user_session_token_by_user_uuid(log_in_user.uuid) do
+    with :ok <- Commanded.dispatch(login_command, consistency: :strong),
+         :ok <- command_start_user_session(login_command) do
+      case UserTokensContext.user_session_token_by_user_uuid(login_command.uuid) do
         nil ->
           {:error, :not_found}
 
@@ -63,37 +63,42 @@ defmodule ReplyExpress.Accounts.UsersContext do
           {:ok, projection}
       end
     else
-      {:error, :validation_failure, %{user_uuid: ["session token already exists"]}} ->
-        reset_user_session(log_in_user)
+      {:error, :validation_failure, errors} when is_map(errors) ->
+        case errors do
+          %{user_uuid: ["session token already exists"]} ->
+            reset_user_session(login_command)
+          _ ->
+            {:error, :validation_failure, errors}
+        end
 
       error ->
         error
     end
   end
 
-  defp command_start_user_session(log_in_user) do
+  defp command_start_user_session(login_command) do
     uuid = UUID.uuid4()
 
-    log_in_user
+    login_command
     |> Map.from_struct()
     |> Map.take([:logged_in_at])
     |> StartUserSession.new()
     |> StartUserSession.assign_uuid(uuid)
     |> StartUserSession.build_session_token()
-    |> StartUserSession.set_user_id(log_in_user.id)
-    |> StartUserSession.set_user_uuid(log_in_user.uuid)
+    |> StartUserSession.set_user_id(login_command.id)
+    |> StartUserSession.set_user_uuid(login_command.uuid)
     |> Commanded.dispatch(consistency: :strong)
   end
 
-  defp reset_user_session(log_in_user) do
+  defp reset_user_session(login_command) do
     clear_user_tokens =
-      log_in_user
+      login_command
       |> Map.take([:uuid])
       |> ClearUserTokens.new()
 
     with :ok <- Commanded.dispatch(clear_user_tokens, consistency: :strong),
-         :ok <- command_start_user_session(log_in_user) do
-      log_in_user.uuid
+         :ok <- command_start_user_session(login_command) do
+      login_command.uuid
       |> UserTokensContext.user_session_token_by_user_uuid()
       |> case do
         nil -> {:error, :not_found}
