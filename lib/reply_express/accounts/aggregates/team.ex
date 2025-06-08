@@ -3,16 +3,22 @@ defmodule ReplyExpress.Accounts.Aggregates.Team do
   Team aggregate that handles team-related commands and emits events.
   """
 
-  defstruct [:uuid, :name]
-
-  alias ReplyExpress.Accounts.Aggregates.Team
   alias ReplyExpress.Accounts.Commands.CreateTeam
   alias ReplyExpress.Accounts.Events.TeamCreated
+
+  @type t :: %__MODULE__{
+          uuid: String.t() | nil,
+          name: String.t() | nil
+        }
+
+  defstruct [:uuid, :name]
 
   @doc """
   Executes the CreateTeam command and returns a TeamCreated event.
   """
-  def execute(%Team{uuid: nil}, %CreateTeam{} = command) do
+  @spec execute(t(), CreateTeam.t()) :: TeamCreated.t()
+
+  def execute(%__MODULE__{uuid: nil}, %CreateTeam{} = command) do
     %TeamCreated{
       uuid: command.uuid,
       name: command.name
@@ -22,8 +28,10 @@ defmodule ReplyExpress.Accounts.Aggregates.Team do
   @doc """
   Applies the TeamCreated event to the Team aggregate.
   """
-  def apply(%Team{} = team, %TeamCreated{} = event) do
-    %Team{
+  @spec apply(t(), TeamCreated.t()) :: t()
+
+  def apply(%__MODULE__{} = team, %TeamCreated{} = event) do
+    %__MODULE__{
       team
       | uuid: event.uuid,
         name: event.name
