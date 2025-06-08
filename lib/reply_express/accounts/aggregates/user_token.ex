@@ -3,7 +3,6 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
   Command handler for the user token aggregate
   """
 
-  alias ReplyExpress.Accounts.Aggregates.UserToken
   alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Events.PasswordResetTokenGenerated
@@ -27,7 +26,12 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
     :uuid
   ]
 
-  def execute(%UserToken{uuid: nil}, %GeneratePasswordResetToken{} = reset_token) do
+  @spec execute(
+          t(),
+          GeneratePasswordResetToken.t() | StartUserSession.t()
+        ) :: PasswordResetTokenGenerated.t() | UserSessionStarted.t()
+
+  def execute(%__MODULE__{uuid: nil}, %GeneratePasswordResetToken{} = reset_token) do
     %PasswordResetTokenGenerated{
       email: reset_token.email,
       token: reset_token.token,
@@ -37,7 +41,7 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
     }
   end
 
-  def execute(%UserToken{uuid: nil}, %StartUserSession{} = user_session) do
+  def execute(%__MODULE__{uuid: nil}, %StartUserSession{} = user_session) do
     %UserSessionStarted{
       context: user_session.context,
       token: user_session.token,
@@ -49,11 +53,12 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
 
   # Mutators
   @spec apply(
-          UserToken.t(),
-          UserSessionStarted.t() | PasswordResetTokenGenerated.t()
-        ) :: UserToken.t()
-  def apply(%UserToken{} = user_token, %UserSessionStarted{} = user_session) do
-    %UserToken{
+          t(),
+          UserSessionStarted.t() | PasswordResetTokenGenerated.t() | any()
+        ) :: t()
+
+  def apply(%__MODULE__{} = user_token, %UserSessionStarted{} = user_session) do
+    %__MODULE__{
       user_token
       | context: user_session.context,
         token: user_session.token,
@@ -62,8 +67,8 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
     }
   end
 
-  def apply(%UserToken{} = user_token, %PasswordResetTokenGenerated{} = reset_token) do
-    %UserToken{
+  def apply(%__MODULE__{} = user_token, %PasswordResetTokenGenerated{} = reset_token) do
+    %__MODULE__{
       user_token
       | context: "reset_password",
         sent_to: reset_token.email,
@@ -74,5 +79,5 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
     }
   end
 
-  def apply(%UserToken{} = user_token, _event), do: user_token
+  def apply(%__MODULE__{} = user_token, _event), do: user_token
 end
