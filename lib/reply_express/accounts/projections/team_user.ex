@@ -10,6 +10,17 @@ defmodule ReplyExpress.Accounts.Projections.TeamUser do
 
   @timestamps_opts [type: :utc_datetime_usec]
 
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          role: String.t() | nil,
+          team_id: integer() | nil,
+          user_id: integer() | nil,
+          team: TeamProjection.t() | Ecto.Association.NotLoaded.t() | nil,
+          user: UserProjection.t() | Ecto.Association.NotLoaded.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   schema "teams_users" do
     field :role, :string
     belongs_to :team, TeamProjection
