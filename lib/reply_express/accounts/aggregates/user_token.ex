@@ -9,6 +9,15 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
   alias ReplyExpress.Accounts.Events.PasswordResetTokenGenerated
   alias ReplyExpress.Accounts.Events.UserSessionStarted
 
+  @type t :: %__MODULE__{
+          context: String.t(),
+          sent_to: String.t(),
+          token: String.t(),
+          user_id: integer,
+          user_uuid: String.t(),
+          uuid: String.t()
+        }
+
   defstruct [
     :context,
     :sent_to,
@@ -39,6 +48,10 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
   end
 
   # Mutators
+  @spec apply(
+          UserToken.t(),
+          UserSessionStarted.t() | PasswordResetTokenGenerated.t()
+        ) :: UserToken.t()
   def apply(%UserToken{} = user_token, %UserSessionStarted{} = user_session) do
     %UserToken{
       user_token
@@ -60,4 +73,6 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
         uuid: reset_token.uuid
     }
   end
+
+  def apply(%UserToken{} = user_token, _event), do: user_token
 end

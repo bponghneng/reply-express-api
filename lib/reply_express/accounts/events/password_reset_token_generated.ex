@@ -5,6 +5,14 @@ defmodule ReplyExpress.Accounts.Events.PasswordResetTokenGenerated do
 
   @derive Jason.Encoder
 
+  @type t :: %__MODULE__{
+          email: String.t(),
+          token: String.t(),
+          user_id: integer,
+          user_uuid: String.t(),
+          uuid: String.t()
+        }
+
   defstruct email: "",
             token: nil,
             user_id: "",

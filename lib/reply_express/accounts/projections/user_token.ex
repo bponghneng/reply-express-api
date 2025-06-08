@@ -9,6 +9,16 @@ defmodule ReplyExpress.Accounts.Projections.UserToken do
 
   @timestamps_opts [type: :utc_datetime_usec, updated_at: false]
 
+  @type t :: %__MODULE__{
+          context: String.t(),
+          sent_to: String.t(),
+          token: String.t(),
+          user: UserProjection.t(),
+          user_id: integer,
+          user_uuid: String.t(),
+          uuid: String.t()
+        }
+
   schema "user_tokens" do
     field :context, :string
     field :sent_to, :string
