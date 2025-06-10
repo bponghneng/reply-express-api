@@ -48,7 +48,7 @@ defmodule ReplyExpress.MixProject do
       {:ex_aws, "~> 2.1"},
       {:ex_aws_sqs, "~> 3.3"},
       {:exconstructor, "~> 1.2.11"},
-      {:ex_machina, "~> 2.8.0", only: :test},
+      {:ex_machina, "~> 2.8.0"},
       {:finch, "~> 0.13"},
       {:gen_smtp, "~> 1.1"},
       {:gettext, "~> 0.20"},
