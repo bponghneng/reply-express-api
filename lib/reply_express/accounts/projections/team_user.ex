@@ -13,8 +13,8 @@ defmodule ReplyExpress.Accounts.Projections.TeamUser do
   @type t :: %__MODULE__{
           id: integer() | nil,
           role: String.t() | nil,
-          team_id: integer() | nil,
-          user_id: integer() | nil,
+          team_id: binary() | nil,
+          user_id: binary() | nil,
           team: TeamProjection.t() | Ecto.Association.NotLoaded.t() | nil,
           user: UserProjection.t() | Ecto.Association.NotLoaded.t() | nil,
           inserted_at: DateTime.t() | nil,
