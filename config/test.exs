@@ -7,18 +7,18 @@ import Config
 # Run `mix help test` for more information.
 config :reply_express, ReplyExpress.Repo,
   username: "postgres",
-  password: System.get_env("DATABASE_PASSWORD", "password"),
+  password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   database: "reply_express_test#{System.get_env("MIX_TEST_PARTITION")}",
-  pool_size: System.schedulers_online() * 2
+  pool_size: System.schedulers_online()
 
 config :reply_express, ReplyExpress.EventStore,
   serializer: Commanded.Serialization.JsonSerializer,
   username: "postgres",
-  password: System.get_env("DATABASE_PASSWORD", "password"),
+  password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   database: "eventstore_test#{System.get_env("MIX_TEST_PARTITION")}",
-  pool_size: System.schedulers_online() * 2
+  pool_size: System.schedulers_online()
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

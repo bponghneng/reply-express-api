@@ -1,4 +1,4 @@
-FROM elixir:1.17.2
+FROM elixir:1.18.4-otp-27
 
 RUN apt-get update && apt-get install --yes postgresql-client
 

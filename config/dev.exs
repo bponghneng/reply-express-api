@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :reply_express, ReplyExpress.Repo,
   username: "postgres",
-  password: System.get_env("DATABASE_PASSWORD", "password"),
+  password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   database: "reply_express_dev",
   stacktrace: true,
@@ -13,7 +13,7 @@ config :reply_express, ReplyExpress.Repo,
 config :reply_express, ReplyExpress.EventStore,
   serializer: Commanded.Serialization.JsonSerializer,
   username: "postgres",
-  password: System.get_env("DATABASE_PASSWORD", "password"),
+  password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   database: "eventstore_dev",
   pool_size: 10
