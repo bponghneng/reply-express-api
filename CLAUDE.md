@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Essential Commands
 
 ### Development Setup
+
 ```bash
 # Initial setup - copy config and install dependencies
 cp config/dev.local.example.exs config/dev.local.exs  # Fill in values
@@ -12,12 +13,14 @@ mix setup                    # Install deps and setup databases
 ```
 
 ### Development Server
+
 ```bash
 mix phx.server              # Start server (port 4000)
 iex -S mix phx.server      # Start with interactive Elixir shell
 ```
 
 ### Testing
+
 ```bash
 mix test                   # Run full test suite
 mix test test/path/to/specific_test.exs  # Run single test file
@@ -25,17 +28,19 @@ mix test --stale          # Run only tests affected by recent changes
 ```
 
 ### Database Management
+
 ```bash
 # Development environment
 mix reset.dev             # Reset both EventStore and Ecto database
 mix ecto.reset           # Reset only Ecto database
 mix eventstore.reset     # Reset only EventStore
 
-# Test environment  
+# Test environment
 mix reset.test           # Reset both databases for tests
 ```
 
 ### Code Quality
+
 ```bash
 mix credo                # Run static code analysis
 mix format              # Format code
@@ -48,6 +53,7 @@ This is a **CQRS/Event Sourcing API** built with Elixir/Phoenix using the Comman
 ### Core Patterns
 
 **CQRS/Event Sourcing Flow:**
+
 1. HTTP Request → Controller → Context
 2. Context → Command dispatch via Commanded
 3. Aggregate processes command → Emits events
@@ -55,6 +61,7 @@ This is a **CQRS/Event Sourcing API** built with Elixir/Phoenix using the Comman
 5. Query read models for responses
 
 **Domain Structure:**
+
 ```
 lib/reply_express/accounts/    # Main bounded context
 ├── aggregates/               # Business logic (User, Team, UserToken)
@@ -82,7 +89,7 @@ lib/reply_express/accounts/    # Main bounded context
 1. **Create Specification**: Add to `/specs/` directory following existing patterns
 2. **Follow CQRS Pattern**:
    - Command in `commands/`
-   - Events in `events/`  
+   - Events in `events/`
    - Aggregate logic in `aggregates/`
    - Projector in `projectors/`
    - Projection schema in `projections/`
@@ -100,10 +107,11 @@ lib/reply_express/accounts/    # Main bounded context
 ### Test Factories
 
 **Available Command Factories:**
+
 ```elixir
 # In lib/reply_express/factory.ex
 build(:cmd_register_user)                   # RegisterUser command
-build(:cmd_create_team)                     # CreateTeam command  
+build(:cmd_create_team)                     # CreateTeam command
 build(:cmd_login)                           # Login command
 build(:cmd_clear_user_tokens)               # ClearUserTokens command
 build(:cmd_generate_password_reset_token)   # GeneratePasswordResetToken command
@@ -117,6 +125,7 @@ build(:cmd_login, email: "user@example.com")
 ```
 
 **Factory Testing Pattern:**
+
 - Each factory has its own `describe` block in `test/reply_express/factory_test.exs`
 - Tests verify both default values and attribute overrides
 - Use assertion pattern: `assert result.field == expected_value`
@@ -124,6 +133,7 @@ build(:cmd_login, email: "user@example.com")
 ### Command Validation
 
 Commands use Vex for validation. Custom validators are in `accounts/validators/`:
+
 - Database validations (unique_email, valid_user_uuid)
 - Business rule validations (logged_in_at_not_expired)
 - Cross-aggregate validations (reset_password_token_exists)
@@ -131,6 +141,7 @@ Commands use Vex for validation. Custom validators are in `accounts/validators/`
 ### Database Considerations
 
 **Dual Persistence Model:**
+
 - **EventStore**: Immutable event log (source of truth)
 - **PostgreSQL**: Optimized projections for queries
 - **Migrations**: Only for projection schemas (not events)
@@ -144,6 +155,7 @@ Both databases must be managed separately - use `mix reset.dev` to reset both.
 **Authentication**: Session token-based (stored as projections)
 
 **Error Handling**: Centralized via `FallbackController`
+
 - Validation errors → 422 with field details
 - Command errors → Structured JSON responses
 
@@ -151,9 +163,16 @@ Both databases must be managed separately - use `mix reset.dev` to reset both.
 
 All modules should include comprehensive `@type` specifications. This codebase follows strict typing practices for better documentation and tooling support.
 
-## AI Workflow Integration
+## Development Guidelines
 
-This project includes Python-based AI development workflows in `/workflows/`:
-- Specification-driven development using markdown specs
-- `new_endpoint.py` for automated endpoint generation
-- Integration with Aider AI assistant
+### Specification and Implementation Workflow
+
+- **All plans should be stored in the `specs` directory.**
+- **Implement features using a test-driven development (TDD) approach.**
+  - Write the tests first, one file at a time.
+  - Do not write any implementation before tests.
+  - Verify that every test file is correct before writing the next one.
+
+### Implementation Best Practices
+
+- **When implementing a plan with existing tests, write one file at a time. When the file is written, run the test and fix any errors before continuing to write the next file.**
