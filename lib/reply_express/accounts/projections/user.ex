@@ -32,9 +32,12 @@ defmodule ReplyExpress.Accounts.Projections.User do
     field :logged_in_at, :utc_datetime
     field :uuid, :binary_id
 
-    has_many :user_tokens, UserTokenProjection
-    has_many :team_users, TeamUser
-    many_to_many :teams, Team, join_through: TeamUser
+    has_many :user_tokens, UserTokenProjection, foreign_key: :user_uuid, references: :uuid
+    has_many :team_users, TeamUser, foreign_key: :user_uuid, references: :uuid
+
+    many_to_many :teams, Team,
+      join_through: TeamUser,
+      join_keys: [user_uuid: :uuid, team_uuid: :uuid]
 
     timestamps()
   end

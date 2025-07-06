@@ -3,15 +3,19 @@ defmodule ReplyExpress.Repo.Migrations.CreateTeamsUsers do
 
   def change do
     create table(:teams_users) do
-      add :team_id, references(:teams, on_delete: :delete_all), null: false
-      add :user_id, references(:users, on_delete: :delete_all), null: false
+      add :team_uuid, references(:teams, column: :uuid, on_delete: :delete_all, type: :uuid),
+        null: false
+
+      add :user_uuid, references(:users, column: :uuid, on_delete: :delete_all, type: :uuid),
+        null: false
+
       add :role, :string, null: false
 
       timestamps()
     end
 
-    create index(:teams_users, [:team_id])
-    create index(:teams_users, [:user_id])
-    create unique_index(:teams_users, [:team_id, :user_id])
+    create index(:teams_users, [:team_uuid])
+    create index(:teams_users, [:user_uuid])
+    create unique_index(:teams_users, [:team_uuid, :user_uuid])
   end
 end

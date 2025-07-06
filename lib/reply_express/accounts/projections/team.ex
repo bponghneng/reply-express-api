@@ -24,8 +24,11 @@ defmodule ReplyExpress.Accounts.Projections.Team do
     field :name, :string
     field :uuid, :binary_id
 
-    has_many :team_users, TeamUser
-    many_to_many :users, User, join_through: TeamUser
+    has_many :team_users, TeamUser, foreign_key: :team_uuid, references: :uuid
+
+    many_to_many :users, User,
+      join_through: TeamUser,
+      join_keys: [team_uuid: :uuid, user_uuid: :uuid]
 
     timestamps()
   end
