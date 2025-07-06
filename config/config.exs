@@ -32,9 +32,14 @@ config :reply_express, ReplyExpress.Commanded,
   pub_sub: :local,
   registry: :local
 
-config :reply_express, ReplyExpress.EventStore, serializer: Commanded.Serialization.JsonSerializer
+# config :reply_express, ReplyExpress.EventStore, serializer: Commanded.Serialization.JsonSerializer
 
 config :commanded, event_store_adapter: Commanded.EventStore.Adapters.EventStore
+
+config :reply_express, ReplyExpress.EventStore,
+  column_data_type: "jsonb",
+  serializer: EventStore.JsonbSerializer,
+  types: EventStore.PostgresTypes
 
 # Configures the mailer
 #
@@ -52,6 +57,8 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :reply_express, env: config_env()
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
