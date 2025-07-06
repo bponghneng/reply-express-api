@@ -67,6 +67,39 @@ The project follows a strict specification-driven development process:
 3. **Test-Driven Development**: Comprehensive test coverage using ExMachina factories and Phoenix ConnCase for HTTP endpoints
 4. **Incremental Delivery**: Each feature is implemented as a complete vertical slice before moving to the next
 
+### Testing Patterns
+
+**Projector Testing with Commanded.Ecto.Projections:**
+
+Projectors are tested by calling the `handle/2` method directly with proper metadata format:
+
+```elixir
+# Create test event
+event = %UserAddedToTeam{
+  team_uuid: team_uuid,
+  user_uuid: user_uuid, 
+  role: "member"
+}
+
+# Call projector with required metadata
+:ok = TeamUserProjector.handle(event, %{
+  event_number: 1,
+  handler_name: "team_users"
+})
+
+# Verify projection was created
+team_user = Repo.get_by(TeamUser, team_uuid: team_uuid, user_uuid: user_uuid)
+assert team_user.role == "member"
+```
+
+**Key Requirements:**
+- Use `DataCase` for database access
+- Create prerequisite data via command dispatch (not direct inserts)
+- Metadata must include `event_number` and `handler_name` keys
+- Verify projections by querying the database directly
+
+**Reference:** [Testing read model projectors - Commanded Recipes](https://github.com/commanded/recipes/issues/18)
+
 ### Architectural Decisions
 
 **CQRS/Event Sourcing Implementation:**

@@ -27,14 +27,12 @@ reply_express-*.tar
 
 # IDE files
 .elixir_ls
+.idea
 .vscode
 
-# Workflow files
-.aider.tags.cache.v4
-.aider.chat.history.md
-.aider.conf.yml
-.aider.input.history
-.venv
+# Docker Compose volumes
+localstack-data
+postgres-data
 
 # Local logs
 erl_crash.dump
