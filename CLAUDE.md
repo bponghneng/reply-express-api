@@ -258,6 +258,42 @@ All modules should include comprehensive `@type` specifications. This codebase f
 - **Implementation Phase:** When implementing a plan, I will work on one file at a time. After I have written the code for a file, I will verify with you before beginning work on the next file.
 - **TDD is mandatory.** Write tests *before* implementation. All new features require a spec in `/specs`.
 
+### Implementation Workflow
+
+When implementing features from plans in `/specs`, follow this systematic approach:
+
+#### 1. **Pre-Implementation Analysis**
+- Read and understand the complete plan
+- Identify what tests already exist vs. what needs to be created
+- Update the plan with any differences found in existing tests
+- Create a prioritized todo list of all implementation tasks
+
+#### 2. **One-File-at-a-Time Implementation**
+- Work on only **one file at a time**
+- For each file:
+  1. **Run the relevant test first** to see current errors and understand requirements
+  2. **Fix test issues** if tests have problems (incorrect setup, wrong expectations, etc.)
+  3. **Implement the file** to make the tests pass
+  4. **Run tests again** to verify implementation works
+  5. **Fix any warnings** (unused variables, duplicate docs, etc.)
+  6. **Update the plan** if implementation details differ from original plan
+
+#### 3. **Test-First Approach**
+- Always run tests before implementing to understand what's needed
+- Fix test problems before implementation problems
+- Ensure tests accurately reflect the planned behavior
+- Remove or fix tests that don't align with architecture (e.g., wrong event handling)
+
+#### 4. **Plan Maintenance**
+- Update specs when implementation differs from original plan
+- Document architectural decisions made during implementation
+- Keep todo lists updated with progress and new discoveries
+
+#### 5. **Quality Gates**
+- All tests must pass before moving to next file
+- All warnings must be resolved
+- Documentation must be updated for any changes
+
 ### Specification and Implementation Workflow
 
 - **All plans should be stored in the `specs` directory.**
