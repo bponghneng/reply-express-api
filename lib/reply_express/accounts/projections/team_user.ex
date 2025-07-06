@@ -11,7 +11,6 @@ defmodule ReplyExpress.Accounts.Projections.TeamUser do
   @timestamps_opts [type: :utc_datetime_usec]
 
   @type t :: %__MODULE__{
-          id: integer() | nil,
           role: String.t() | nil,
           team_id: binary() | nil,
           user_id: binary() | nil,
@@ -23,8 +22,9 @@ defmodule ReplyExpress.Accounts.Projections.TeamUser do
 
   schema "teams_users" do
     field :role, :string
-    belongs_to :team, TeamProjection
-    belongs_to :user, UserProjection
+
+    belongs_to :team, TeamProjection, foreign_key: :team_uuid, references: :uuid, type: :binary_id
+    belongs_to :user, UserProjection, foreign_key: :user_uuid, references: :uuid, type: :binary_id
 
     timestamps()
   end
