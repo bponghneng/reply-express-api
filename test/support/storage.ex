@@ -39,8 +39,10 @@ defmodule ReplyExpress.Storage do
     """
     TRUNCATE TABLE
       projection_versions,
-      users,
-      user_tokens
+      teams,
+      teams_users,
+      user_tokens,
+      users
     RESTART IDENTITY
     CASCADE;
     """
