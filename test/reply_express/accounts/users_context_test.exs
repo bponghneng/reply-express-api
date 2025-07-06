@@ -17,6 +17,7 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
 
   describe "login" do
     setup do
+      # GenServer.start_link(UserTokenProjection, [], application: ReplyExpress.Commanded, name: :user_tokens)
       command = %RegisterUser{
         email: @valid_credentials.email,
         hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
