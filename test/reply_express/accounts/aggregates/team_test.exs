@@ -7,7 +7,6 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
   alias ReplyExpress.Accounts.Commands.CreateTeam
   alias ReplyExpress.Accounts.Events.TeamCreated
   alias ReplyExpress.Accounts.Events.UserAddedToTeam
-  alias ReplyExpress.Accounts.Events.UserRegistered
 
   describe "CreateTeam command" do
     test "creates a team with user_uuid" do
@@ -61,14 +60,7 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
       user_uuid = UUID.uuid4()
       creating_user_uuid = UUID.uuid4()
 
-      # First create the user
-      user_registered_event = %UserRegistered{
-        uuid: user_uuid,
-        email: "user@example.com",
-        hashed_password: "hashed_password"
-      }
-
-      # Then create the team
+      # Create the team
       team_created_event = %TeamCreated{
         uuid: team_uuid,
         name: "Test Team",
@@ -88,19 +80,13 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
         role: "member"
       }
 
-      assert_events([user_registered_event, team_created_event], command, [expected_event])
+      assert_events([team_created_event], command, [expected_event])
     end
 
     test "adds a user as admin to an existing team" do
       team_uuid = UUID.uuid4()
       user_uuid = UUID.uuid4()
       creating_user_uuid = UUID.uuid4()
-
-      user_registered_event = %UserRegistered{
-        uuid: user_uuid,
-        email: "user@example.com",
-        hashed_password: "hashed_password"
-      }
 
       team_created_event = %TeamCreated{
         uuid: team_uuid,
@@ -120,18 +106,12 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
         role: "admin"
       }
 
-      assert_events([user_registered_event, team_created_event], command, [expected_event])
+      assert_events([team_created_event], command, [expected_event])
     end
 
     test "prevents adding a user to a non-existent team" do
       team_uuid = UUID.uuid4()
       user_uuid = UUID.uuid4()
-
-      user_registered_event = %UserRegistered{
-        uuid: user_uuid,
-        email: "user@example.com",
-        hashed_password: "hashed_password"
-      }
 
       command = %AddUserToTeam{
         team_uuid: team_uuid,
@@ -139,7 +119,7 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
         role: "member"
       }
 
-      assert_error([user_registered_event], command, {:error, :team_not_found})
+      assert_error([], command, {:error, :team_not_found})
     end
 
 
@@ -147,12 +127,6 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
       team_uuid = UUID.uuid4()
       user_uuid = UUID.uuid4()
       creating_user_uuid = UUID.uuid4()
-
-      user_registered_event = %UserRegistered{
-        uuid: user_uuid,
-        email: "user@example.com",
-        hashed_password: "hashed_password"
-      }
 
       team_created_event = %TeamCreated{
         uuid: team_uuid,
@@ -173,7 +147,7 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
       }
 
       assert_error(
-        [user_registered_event, team_created_event, user_added_event],
+        [team_created_event, user_added_event],
         duplicate_command,
         {:error, :user_already_member}
       )

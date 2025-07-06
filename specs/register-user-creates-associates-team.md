@@ -18,9 +18,9 @@ This feature will be implemented using a CQRS/ES approach with the Commanded lib
     -   Data: `{uuid, email, hashed_password, ...}`
     -   Handled by: `ReplyExpress.Accounts.Aggregates.User`
 -   **`ReplyExpress.Accounts.Commands.CreateTeam`** (Existing, but will require modification)
-    -   Data: `{uuid, name, user_registration_uuid}`
+    -   Data: `{uuid, name, user_registration_uuid (optional)}`
     -   Handled by: `ReplyExpress.Accounts.Aggregates.Team`
-    -   The `user_registration_uuid` will be added to the command.
+    -   The `user_registration_uuid` will be added to the command as an optional field.
 -   **`ReplyExpress.Accounts.Commands.AddUserToTeam`** (New)
     -   Data: `{team_uuid, user_uuid, role}`
     -   Handled by: `ReplyExpress.Accounts.Aggregates.Team`
@@ -55,7 +55,7 @@ A new process manager, `ReplyExpress.Accounts.ProcessManagers.UserRegistration`,
 -   **Handles `UserRegistered` event:**
     -   Dispatches a `CreateTeam` command.
         -   `team_uuid` will be a newly generated UUID.
-        -   `name` will be derived from the user's email address (e.g., "john.doe@example.com" → "John Doe's Team").
+        -   `name` will be derived from the user's email address (e.g., "test@example.com" → "Test's Team").
         -   `user_registration_uuid` will be the `user_uuid` from the process manager state.
 -   **Listens for `TeamCreated` event** (where `user_registration_uuid` matches the process manager's stored `user_uuid`).
     -   State: Stores `team_uuid` from the event.
@@ -266,6 +266,10 @@ To ensure the reliability and correctness of this feature, we will follow a test
 
 #### a. Aggregate Tests (`Team` Aggregate)
 -   **File:** `test/reply_express/accounts/aggregates/team_test.exs`
+-   **Scenario:** Handling the `CreateTeam` command for duplicate team.
+    -   **Given:** An existing team.
+    -   **When:** A `CreateTeam` command is dispatched with the same UUID.
+    -   **Then:** The command is rejected (returns `{:error, :team_already_exists}`).
 -   **Scenario:** Handling the `AddUserToTeam` command.
     -   **Given:** An existing team.
     -   **When:** The `AddUserToTeam` command is dispatched.
@@ -274,7 +278,7 @@ To ensure the reliability and correctness of this feature, we will follow a test
     -   **Given:** An existing team with a user.
     -   **When:** The `AddUserToTeam` command is dispatched for the same user.
     -   **Then:** The command is rejected (returns an error).
--   **Note:** Validation scenarios (user existence, invalid roles) are tested at the Context level in `TeamsContext.add_user_to_team/1` tests, not in the aggregate.
+-   **Note:** Validation scenarios (user existence, invalid roles) are tested at the Context level in `TeamsContext.add_user_to_team/1` tests, not in the aggregate. Duplicate team creation validation should be implemented at both the CreateTeam command level (for early validation) and the Team aggregate level (for business rule enforcement).
 
 #### b. Process Manager Tests (`UserRegistration` Process Manager)
 -   **File:** `test/reply_express/accounts/process_managers/user_registration_test.exs` (New file)
@@ -301,7 +305,7 @@ To ensure the reliability and correctness of this feature, we will follow a test
     -   **Scenario:** Applying `UserRegistered` event.
         -   **Given:** A `UserRegistered` event and an initial state.
         -   **When:** `apply/2` is called.
-        -   **Then:** The new state should contain the `user_uuid` and `user_name`.
+        -   **Then:** The new state should contain the `user_uuid` and `email`.
     -   **Scenario:** Applying `TeamCreated` event.
         -   **Given:** A `TeamCreated` event and the current state.
         -   **When:** `apply/2` is called.
