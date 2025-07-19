@@ -6,7 +6,7 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionControllerTest do
   alias Commanded.EventStore
   alias Commanded.EventStore.EventData
   alias Commanded.EventStore.TypeProvider
-  alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Events.UserRegistered
   alias ReplyExpress.Accounts.Projections.UserToken
   alias ReplyExpress.Commanded
@@ -17,10 +17,9 @@ defmodule ReplyExpressWeb.API.V1.Users.SessionControllerTest do
 
   describe "POST /api/v1/users/login" do
     test "sets cookie with token for session tracking", context do
-      command = %RegisterUser{
+      command = %CreateUser{
         email: @valid_credentials.email,
         hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
-        password: @valid_credentials.password,
         uuid: UUID.uuid4()
       }
 

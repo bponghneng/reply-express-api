@@ -4,7 +4,7 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
   use ReplyExpress.DataCase
 
   alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
-  alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Commands.ResetPassword
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
@@ -17,11 +17,9 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
 
   describe "login" do
     setup do
-      # GenServer.start_link(UserTokenProjection, [], application: ReplyExpress.Commanded, name: :user_tokens)
-      command = %RegisterUser{
+      command = %CreateUser{
         email: @valid_credentials.email,
         hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
-        password: @valid_credentials.password,
         uuid: UUID.uuid4()
       }
 
@@ -55,18 +53,19 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
 
   describe "generate_password_reset_token/1" do
     test "Creates token and sends email with password reset link" do
-      # Register user using the register_user function which ensures the projection is created
-      {:ok, user} =
-        UsersContext.register_user(%{
-          email: @valid_credentials.email,
-          password: @valid_credentials.password
-        })
+      command = %CreateUser{
+        email: @valid_credentials.email,
+        hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
+        uuid: UUID.uuid4()
+      }
+
+      :ok = Commanded.dispatch(command, consistency: :strong)
 
       # Generate the password reset token
       {:ok, %UserTokenProjection{} = user_token} =
         UsersContext.generate_password_reset_token(%{email: @valid_credentials.email})
 
-      assert user_token.user_uuid == user.uuid
+      assert user_token.user_uuid == command.uuid
       assert user_token.context == "reset_password"
     end
   end
@@ -101,10 +100,9 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
 
   describe "reset_password/1" do
     setup do
-      cmd_register = %RegisterUser{
+      cmd_register = %CreateUser{
         email: @valid_credentials.email,
         hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
-        password: @valid_credentials.password,
         uuid: UUID.uuid4()
       }
 

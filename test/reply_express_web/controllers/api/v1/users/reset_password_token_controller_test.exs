@@ -5,7 +5,7 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordTokenControllerTest do
 
   import Swoosh.TestAssertions
 
-  alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
   alias ReplyExpress.Commanded
 
@@ -13,10 +13,9 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordTokenControllerTest do
 
   describe "POST /api/v1/users/reset-password-token" do
     setup do
-      cmd_register = %RegisterUser{
+      cmd_register = %CreateUser{
         email: @valid_credentials.email,
         hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
-        password: @valid_credentials.password,
         uuid: UUID.uuid4()
       }
 

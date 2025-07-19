@@ -4,7 +4,7 @@ defmodule ReplyExpressWeb.API.V1.TeamsControllerTest do
   use ReplyExpressWeb.ConnCase
 
   alias ReplyExpress.Accounts.Commands.CreateTeam
-  alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Projections.Team, as: TeamProjection
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Commanded
@@ -28,32 +28,62 @@ defmodule ReplyExpressWeb.API.V1.TeamsControllerTest do
 
   describe "add_user/2" do
     setup do
+      # Attach telemetry handler for projection synchronization
+      :telemetry.attach(
+        "test-handler-user",
+        [:projector, :user],
+        fn event, measurements, metadata, reply_to ->
+          send(reply_to, {:telemetry, event, measurements, metadata})
+        end,
+        self()
+      )
+
+      :telemetry.attach(
+        "test-handler-team",
+        [:projector, :team],
+        fn event, measurements, metadata, reply_to ->
+          send(reply_to, {:telemetry, event, measurements, metadata})
+        end,
+        self()
+      )
+
       # Create user via command dispatch
       user_uuid = UUID.uuid4()
 
-      register_user_command = %RegisterUser{
+      create_user_command = %CreateUser{
         email: @valid_user_attrs.email,
         hashed_password: Pbkdf2.hash_pwd_salt(@valid_user_attrs.password),
-        password: @valid_user_attrs.password,
         uuid: user_uuid
       }
 
-      :ok = Commanded.dispatch(register_user_command, consistency: :strong)
+      :ok = Commanded.dispatch(create_user_command, consistency: :strong)
+
+      # Wait for user projection to complete
+      assert_receive {:telemetry, [:projector, :user], _measurements,
+                      %{event: %ReplyExpress.Accounts.Events.UserCreated{uuid: ^user_uuid}}}
 
       # Create team via command dispatch
       team_uuid = UUID.uuid4()
 
       create_team_command = %CreateTeam{
         uuid: team_uuid,
-        name: @valid_team_attrs.name,
-        user_registration_uuid: user_uuid
+        name: @valid_team_attrs.name
       }
 
       :ok = Commanded.dispatch(create_team_command, consistency: :strong)
 
+      # Wait for team projection to complete
+      assert_receive {:telemetry, [:projector, :team], _measurements,
+                      %{event: %ReplyExpress.Accounts.Events.TeamCreated{uuid: ^team_uuid}}}
+
       # Get the projections created by the commands
       user_projection = Repo.get_by!(UserProjection, uuid: user_uuid)
       team_projection = Repo.get_by!(TeamProjection, uuid: team_uuid)
+
+      on_exit(fn ->
+        :telemetry.detach("test-handler-user")
+        :telemetry.detach("test-handler-team")
+      end)
 
       %{
         user_uuid: user_uuid,

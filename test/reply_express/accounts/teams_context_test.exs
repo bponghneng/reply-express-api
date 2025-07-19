@@ -4,7 +4,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
   use ReplyExpress.DataCase
 
   alias ReplyExpress.Accounts.Commands.CreateTeam
-  alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Projections.Team, as: TeamProjection
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.TeamsContext
@@ -55,22 +55,20 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
       # Create user via command dispatch
       user_uuid = UUID.uuid4()
 
-      register_user_command = %RegisterUser{
+      create_user_command = %CreateUser{
         email: @valid_user_attrs.email,
         hashed_password: Pbkdf2.hash_pwd_salt(@valid_user_attrs.password),
-        password: @valid_user_attrs.password,
         uuid: user_uuid
       }
 
-      :ok = Commanded.dispatch(register_user_command, consistency: :strong)
+      :ok = Commanded.dispatch(create_user_command, consistency: :strong)
 
       # Create team via command dispatch
       team_uuid = UUID.uuid4()
 
       create_team_command = %CreateTeam{
         uuid: team_uuid,
-        name: @valid_team_attrs["name"],
-        user_registration_uuid: user_uuid
+        name: @valid_team_attrs["name"]
       }
 
       :ok = Commanded.dispatch(create_team_command, consistency: :strong)
@@ -92,6 +90,15 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
       user_uuid: user_uuid,
       team_projection: team_projection
     } do
+      :telemetry.attach(
+        "test-handler-team-user",
+        [:projector, :team_user],
+        fn event, measurements, metadata, reply_to ->
+          send(reply_to, {:telemetry, event, measurements, metadata})
+        end,
+        self()
+      )
+
       attrs = %{
         "team_uuid" => team_uuid,
         "user_uuid" => user_uuid,
@@ -99,6 +106,10 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
       }
 
       {:ok, team} = TeamsContext.add_user_to_team(attrs)
+
+      # Wait for team user projection to complete
+      assert_receive {:telemetry, [:projector, :team_user], _measurements,
+                      %{event: %ReplyExpress.Accounts.Events.UserAddedToTeam{team_uuid: ^team_uuid, user_uuid: ^user_uuid}}}
 
       assert %TeamProjection{} = team
       assert team.uuid == team_projection.uuid
@@ -108,6 +119,8 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
       assert Enum.any?(team.team_users, fn team_user ->
                team_user.user.uuid == user_uuid
              end)
+
+      :telemetry.detach("test-handler-team-user")
     end
 
     test "adds a user with admin role", %{
@@ -115,6 +128,15 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
       user_uuid: user_uuid,
       team_projection: team_projection
     } do
+      :telemetry.attach(
+        "test-handler-team-user",
+        [:projector, :team_user],
+        fn event, measurements, metadata, reply_to ->
+          send(reply_to, {:telemetry, event, measurements, metadata})
+        end,
+        self()
+      )
+
       attrs = %{
         "team_uuid" => team_uuid,
         "user_uuid" => user_uuid,
@@ -123,13 +145,17 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:ok, team} = TeamsContext.add_user_to_team(attrs)
 
+      # Wait for team user projection to complete
+      assert_receive {:telemetry, [:projector, :team_user], _measurements,
+                      %{event: %ReplyExpress.Accounts.Events.UserAddedToTeam{team_uuid: ^team_uuid, user_uuid: ^user_uuid}}}
+
       assert %TeamProjection{} = team
       assert team.uuid == team_projection.uuid
 
       # Assert that the team has the added user
-      assert Enum.any?(team.team_users, fn team_user ->
-               team_user.user.uuid == user_uuid
-             end)
+      assert Enum.any?(team.team_users, fn team_user -> team_user.user.uuid == user_uuid end)
+
+      :telemetry.detach("test-handler-team-user")
     end
 
     test "validation failure for missing team_uuid", %{user_uuid: user_uuid} do
@@ -140,7 +166,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.team_uuid == ["can't be empty"]
+      assert errors.team_uuid == ["can't be empty", "is invalid"]
     end
 
     test "validation failure for missing user_uuid", %{team_uuid: team_uuid} do
@@ -151,7 +177,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.user_uuid == ["can't be empty"]
+      assert errors.user_uuid == ["can't be empty", "is invalid"]
     end
 
     test "validation failure for missing role", %{
@@ -165,7 +191,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.role == ["can't be empty"]
+      assert errors.role == ["can't be empty", "must be either 'admin' or 'member'"]
     end
 
     test "validation failure for invalid role", %{
@@ -192,7 +218,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.team_uuid == ["can't be empty"]
+      assert errors.team_uuid == ["can't be empty", "is invalid"]
     end
 
     test "validation failure for empty user_uuid", %{team_uuid: team_uuid} do
@@ -204,7 +230,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.user_uuid == ["can't be empty"]
+      assert errors.user_uuid == ["can't be empty", "is invalid"]
     end
 
     test "validation failure for empty role", %{
@@ -219,7 +245,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.role == ["can't be empty"]
+      assert errors.role == ["can't be empty", "must be either 'admin' or 'member'"]
     end
   end
 end
