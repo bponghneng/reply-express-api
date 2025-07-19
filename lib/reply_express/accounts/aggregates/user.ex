@@ -4,11 +4,13 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   """
 
   alias ReplyExpress.Accounts.Commands.ClearUserTokens
+  alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Commands.RegisterUser
   alias ReplyExpress.Accounts.Commands.ResetPassword
 
   alias ReplyExpress.Accounts.Events.PasswordReset
+  alias ReplyExpress.Accounts.Events.UserCreated
   alias ReplyExpress.Accounts.Events.UserLoggedIn
   alias ReplyExpress.Accounts.Events.UserRegistered
   alias ReplyExpress.Accounts.Events.UserTokensCleared
@@ -24,11 +26,24 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
 
   @spec execute(
           t(),
-          ClearUserTokens.t() | Login.t() | RegisterUser.t() | ResetPassword.t()
-        ) :: UserTokensCleared.t() | UserLoggedIn.t() | UserRegistered.t() | PasswordReset.t()
+          ClearUserTokens.t() | CreateUser.t() | Login.t() | RegisterUser.t() | ResetPassword.t()
+        ) ::
+          UserTokensCleared.t()
+          | UserCreated.t()
+          | UserLoggedIn.t()
+          | UserRegistered.t()
+          | PasswordReset.t()
 
   def execute(%__MODULE__{}, %ClearUserTokens{} = clear_user_tokens) do
     %UserTokensCleared{uuid: clear_user_tokens.uuid}
+  end
+
+  def execute(%__MODULE__{uuid: nil}, %CreateUser{} = create_user) do
+    %UserCreated{
+      uuid: create_user.uuid,
+      email: create_user.email,
+      hashed_password: create_user.hashed_password
+    }
   end
 
   def execute(%__MODULE__{uuid: uuid, email: email}, %Login{} = login) do
@@ -54,19 +69,19 @@ defmodule ReplyExpress.Accounts.Aggregates.User do
   # Mutators
   @spec apply(
           t(),
-          UserLoggedIn.t() | UserRegistered.t() | PasswordReset.t() | any()
+          UserCreated.t() | UserLoggedIn.t() | UserRegistered.t() | PasswordReset.t() | any()
         ) :: t()
 
   def apply(%__MODULE__{} = user, %UserLoggedIn{} = logged_in) do
     %__MODULE__{user | logged_in_at: logged_in.logged_in_at, uuid: logged_in.uuid}
   end
 
-  def apply(%__MODULE__{} = user, %UserRegistered{} = registered) do
+  def apply(%__MODULE__{} = user, event) when event.__struct__ in [UserCreated, UserRegistered] do
     %__MODULE__{
       user
-      | uuid: registered.uuid,
-        email: registered.email,
-        hashed_password: registered.hashed_password
+      | uuid: event.uuid,
+        email: event.email,
+        hashed_password: event.hashed_password
     }
   end
 

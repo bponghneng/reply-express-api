@@ -33,7 +33,8 @@ defmodule ReplyExpressWeb.Router do
       post "/reset-password", ResetPasswordController, :create
     end
 
-    # Add the new teams endpoint
+    # Teams endpoints
     post "/teams", TeamsController, :create
+    post "/teams/:uuid/add-user", TeamsController, :add_user
   end
 end

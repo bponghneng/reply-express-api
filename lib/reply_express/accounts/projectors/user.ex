@@ -11,6 +11,7 @@ defmodule ReplyExpress.Accounts.Projectors.User do
 
   alias Ecto.Multi
   alias ReplyExpress.Accounts.Events.PasswordReset
+  alias ReplyExpress.Accounts.Events.UserCreated
   alias ReplyExpress.Accounts.Events.UserLoggedIn
   alias ReplyExpress.Accounts.Events.UserRegistered
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
@@ -28,6 +29,14 @@ defmodule ReplyExpress.Accounts.Projectors.User do
     update_user(multi, user_logged_in.uuid, logged_in_at: logged_in_at)
   end)
 
+  project(%UserCreated{} = user_created, _metadata, fn multi ->
+    Multi.insert(multi, :users, %UserProjection{
+      email: user_created.email,
+      hashed_password: user_created.hashed_password,
+      uuid: user_created.uuid
+    })
+  end)
+
   project(%UserRegistered{} = user_registered, _metadata, fn multi ->
     Multi.insert(multi, :users, %UserProjection{
       email: user_registered.email,
@@ -42,5 +51,16 @@ defmodule ReplyExpress.Accounts.Projectors.User do
 
   defp user_query(uuid) do
     from(u in UserProjection, where: u.uuid == ^uuid)
+  end
+
+  @doc """
+  Telemetry callback for test synchronization.
+  """
+  def after_update(event, metadata, changes) do
+    :telemetry.execute(
+      [:projector, :user],
+      %{system_time: System.system_time()},
+      %{event: event, metadata: metadata, changes: changes, projector: __MODULE__}
+    )
   end
 end
