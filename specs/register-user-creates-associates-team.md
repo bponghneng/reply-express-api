@@ -134,8 +134,8 @@ The existing team context will be updated to provide a public function for addin
           add_user_to_team_command =
             attrs
             |> AddUserToTeam.new()
-            |> AddUserToTeam.set_team_id(attrs["team_uuid"])
-            |> AddUserToTeam.set_user_id(attrs["user_uuid"])
+            |> AddUserToTeam.set_team_uuid(attrs["team_uuid"])
+            |> AddUserToTeam.set_user_uuid(attrs["user_uuid"])
             |> AddUserToTeam.set_role(attrs["role"])
 
           with :ok <- Commanded.dispatch(add_user_to_team_command, consistency: :strong) do

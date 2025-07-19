@@ -21,4 +21,22 @@ defmodule ReplyExpressWeb.API.V1.TeamsController do
       |> render(:create, team: team)
     end
   end
+
+  @doc """
+  Adds a user to a team.
+  """
+  def add_user(conn, %{"uuid" => team_uuid} = params) do
+    user_params = %{
+      "team_uuid" => team_uuid,
+      "user_uuid" => params["user_uuid"],
+      "role" => params["role"]
+    }
+
+    with {:ok, team} <- TeamsContext.add_user_to_team(user_params) do
+      conn
+      |> put_status(:ok)
+      |> put_view(TeamsJSON)
+      |> render(:show, team: team)
+    end
+  end
 end

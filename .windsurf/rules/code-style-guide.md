@@ -1,11 +1,13 @@
 ---
 trigger: always_on
+description: 
+globs: 
 ---
 
 # Code Style
 
 ## Style Guide
-- Follow the [Elixir Style Guide](https://github.com/lexmag/elixir-style-guide).
+- Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style_guide).
 
 ## Ecto
 - Prefer keyword-based queries over pipe-based queries

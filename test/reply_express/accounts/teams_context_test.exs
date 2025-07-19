@@ -191,7 +191,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.role == ["can't be empty", "must be either 'admin' or 'member'"]
+      assert errors.role == ["can't be empty", "must be either \"admin,\" \"member\" or \"owner\""]
     end
 
     test "validation failure for invalid role", %{
@@ -206,7 +206,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.role == ["must be either 'admin' or 'member'"]
+      assert errors.role == ["must be either \"admin,\" \"member\" or \"owner\""]
     end
 
     test "validation failure for empty team_uuid", %{user_uuid: user_uuid} do
@@ -245,7 +245,7 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.role == ["can't be empty", "must be either 'admin' or 'member'"]
+      assert errors.role == ["can't be empty", "must be either \"admin,\" \"member\" or \"owner\""]
     end
   end
 end

@@ -11,12 +11,20 @@ defmodule ReplyExpress.Accounts.Validators.ValidUserUUID do
   @doc """
   Returns an error tuple with message if a user does not exist
   """
-  def validate(value, _context) do
+  def validate(value, _context) when is_nil(value) or value == "" do
+    {:error, "is invalid"}
+  end
+
+  def validate(value, _context) when is_binary(value) do
     value
     |> UsersContext.user_by_uuid()
     |> case do
       %UserProjection{} -> :ok
       _ -> {:error, "is invalid"}
     end
+  end
+
+  def validate(_value, _context) do
+    {:error, "is invalid"}
   end
 end
