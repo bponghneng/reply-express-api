@@ -3,10 +3,10 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
 
   use ExUnit.Case
 
-  alias ReplyExpress.Accounts.Commands.AddUserToTeam
-  alias ReplyExpress.Accounts.Commands.CreateTeam
-  alias ReplyExpress.Accounts.Events.TeamCreated
-  alias ReplyExpress.Accounts.Events.UserAddedToTeam
+  alias ReplyExpress.Accounts.Commands.RegisterTeam
+  alias ReplyExpress.Accounts.Commands.RegisterUserToTeam
+  alias ReplyExpress.Accounts.Events.TeamRegistered
+  alias ReplyExpress.Accounts.Events.UserRegisteredToTeam
   alias ReplyExpress.Accounts.Events.UserRegistered
   alias ReplyExpress.Accounts.ProcessManagers.UserRegistration
 
@@ -23,11 +23,11 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
       assert UserRegistration.interested?(event) == {:start, user_uuid}
     end
 
-    test "continues process on TeamCreated event with matching user_registration_uuid" do
+    test "continues process on TeamRegistered event with matching user_registration_uuid" do
       user_uuid = UUID.uuid4()
       team_uuid = UUID.uuid4()
 
-      event = %TeamCreated{
+      event = %TeamRegistered{
         uuid: team_uuid,
         name: "Test User's Team",
         user_registration_uuid: user_uuid
@@ -36,11 +36,11 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
       assert UserRegistration.interested?(event) == {:continue, user_uuid}
     end
 
-    test "stops process on UserAddedToTeam event with matching identifiers" do
+    test "stops process on UserRegisteredToTeam event with matching identifiers" do
       user_uuid = UUID.uuid4()
       team_uuid = UUID.uuid4()
 
-      event = %UserAddedToTeam{
+      event = %UserRegisteredToTeam{
         team_uuid: team_uuid,
         user_uuid: user_uuid,
         role: "admin"
@@ -57,7 +57,7 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
   end
 
   describe "handle/2" do
-    test "handles UserRegistered event by dispatching CreateTeam command" do
+    test "handles UserRegistered event by dispatching RegisterTeam command" do
       user_uuid = UUID.uuid4()
 
       event = %UserRegistered{
@@ -75,17 +75,17 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
 
       result = UserRegistration.handle(state, event)
 
-      assert result.__struct__ == CreateTeam
+      assert result.__struct__ == RegisterTeam
       assert result.uuid != user_uuid
       assert result.name == "Test's Team"
       assert result.user_registration_uuid == user_uuid
     end
 
-    test "handles TeamCreated event by dispatching AddUserToTeam command" do
+    test "handles TeamRegistered event by dispatching RegisterUserToTeam command" do
       user_uuid = UUID.uuid4()
       team_uuid = UUID.uuid4()
 
-      event = %TeamCreated{
+      event = %TeamRegistered{
         uuid: team_uuid,
         name: "Test User's Team",
         user_registration_uuid: user_uuid
@@ -95,10 +95,10 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
         user_uuid: user_uuid,
         email: "test@example.com",
         team_uuid: nil,
-        status: :team_creation_requested
+        status: :team_registration_requested
       }
 
-      expected_command = %AddUserToTeam{
+      expected_command = %RegisterUserToTeam{
         team_uuid: team_uuid,
         user_uuid: user_uuid,
         role: "admin"
@@ -131,7 +131,7 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
         user_uuid: user_uuid,
         email: "test@example.com",
         team_uuid: nil,
-        status: :team_creation_requested
+        status: :team_registration_requested
       }
 
       result = UserRegistration.apply(initial_state, event)
@@ -139,11 +139,11 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
       assert result == expected_state
     end
 
-    test "applies TeamCreated event to update state" do
+    test "applies TeamRegistered event to update state" do
       user_uuid = UUID.uuid4()
       team_uuid = UUID.uuid4()
 
-      event = %TeamCreated{
+      event = %TeamRegistered{
         uuid: team_uuid,
         name: "Test User's Team",
         user_registration_uuid: user_uuid
@@ -153,14 +153,14 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
         user_uuid: user_uuid,
         email: "test@example.com",
         team_uuid: nil,
-        status: :team_creation_requested
+        status: :team_registration_requested
       }
 
       expected_state = %UserRegistration{
         user_uuid: user_uuid,
         email: "test@example.com",
         team_uuid: team_uuid,
-        status: :user_addition_requested
+        status: :user_registration_requested
       }
 
       result = UserRegistration.apply(state, event)
@@ -188,13 +188,13 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
         hashed_password: "hashed_password"
       }
 
-      # Step 2: Process starts and should dispatch CreateTeam
-      create_team_command =
+      # Step 2: Process starts and should dispatch RegisterTeam
+      register_team_command =
         UserRegistration.handle(initial_state, user_registered)
 
-      assert %CreateTeam{} = create_team_command
-      assert create_team_command.name == "Test's Team"
-      assert create_team_command.user_registration_uuid == user_uuid
+      assert %RegisterTeam{} = register_team_command
+      assert register_team_command.name == "Test's Team"
+      assert register_team_command.user_registration_uuid == user_uuid
 
       # Apply UserRegistered event
       state_after_user_registered =
@@ -202,28 +202,30 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
 
       assert state_after_user_registered.user_uuid == user_uuid
       assert state_after_user_registered.email == "test@example.com"
-      assert state_after_user_registered.status == :team_creation_requested
+      assert state_after_user_registered.status == :team_registration_requested
 
-      # Step 3: Team is created
-      team_created = %TeamCreated{
+      # Step 3: Team is registered
+      team_registered = %TeamRegistered{
         uuid: team_uuid,
         name: "Test User's Team",
         user_registration_uuid: user_uuid
       }
 
-      # Handle TeamCreated event - should add user to team command
-      add_user_command = UserRegistration.handle(state_after_user_registered, team_created)
+      # Handle TeamRegistered event - should register user to team command
+      register_user_command =
+        UserRegistration.handle(state_after_user_registered, team_registered)
 
-      assert %AddUserToTeam{} = add_user_command
-      assert add_user_command.team_uuid == team_uuid
-      assert add_user_command.user_uuid == user_uuid
-      assert add_user_command.role == "admin"
+      assert %RegisterUserToTeam{} = register_user_command
+      assert register_user_command.team_uuid == team_uuid
+      assert register_user_command.user_uuid == user_uuid
+      assert register_user_command.role == "admin"
 
-      # Apply TeamCreated event
-      state_after_team_created = UserRegistration.apply(state_after_user_registered, team_created)
+      # Apply TeamRegistered event
+      state_after_team_registered =
+        UserRegistration.apply(state_after_user_registered, team_registered)
 
-      assert state_after_team_created.team_uuid == team_uuid
-      assert state_after_team_created.status == :user_addition_requested
+      assert state_after_team_registered.team_uuid == team_uuid
+      assert state_after_team_registered.status == :user_registration_requested
     end
   end
 end

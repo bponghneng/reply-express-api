@@ -6,7 +6,7 @@ defmodule ReplyExpress.Accounts.UserTokensContextTest do
   use ReplyExpress.DataCase
 
   alias ReplyExpress.Accounts.Commands.Login
-  alias ReplyExpress.Accounts.Commands.RegisterUser
+  alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
@@ -19,10 +19,9 @@ defmodule ReplyExpress.Accounts.UserTokensContextTest do
 
   describe "user_session_token_by_user_uuid/1" do
     test "returns UserTokenProjection when exists" do
-      cmd_register = %RegisterUser{
+      cmd_register = %CreateUser{
         email: @valid_credentials.email,
         hashed_password: Pbkdf2.hash_pwd_salt(@valid_credentials.password),
-        password: @valid_credentials.password,
         uuid: UUID.uuid4()
       }
 
