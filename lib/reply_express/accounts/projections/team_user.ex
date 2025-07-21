@@ -12,8 +12,8 @@ defmodule ReplyExpress.Accounts.Projections.TeamUser do
 
   @type t :: %__MODULE__{
           role: String.t() | nil,
-          team_id: binary() | nil,
-          user_id: binary() | nil,
+          team_uuid: binary() | nil,
+          user_uuid: binary() | nil,
           team: TeamProjection.t() | Ecto.Association.NotLoaded.t() | nil,
           user: UserProjection.t() | Ecto.Association.NotLoaded.t() | nil,
           inserted_at: DateTime.t() | nil,
