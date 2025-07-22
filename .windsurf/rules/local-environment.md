@@ -1,10 +1,43 @@
 ---
 trigger: always_on
-description:
+description: 
 globs: 
 ---
 
 # Local Environment
 
-- When directed to reset the dev database, run `mix eventstore.reset` and `mix ecto.reset`.
-- When directed to reset the test database, run `MIX_ENV=test mix eventstore.reset` and `MIX_ENV=test mix ecto.reset`.
+## Reference Commands
+
+### Essential Commands
+
+```bash
+# Testing
+mix test                                      # Run all tests
+mix test test/path/to/specific_test.exs       # Run specific test file
+mix test --warnings-as-errors                 # Run with strict warning checking
+
+# Code Quality
+mix credo --strict                            # Run strict static code analysis
+mix format                                    # Format code
+
+# Database Management
+mix reset.dev                                 # Reset both dev databases
+mix reset.test                                # Reset both test databases
+
+# Development Server
+mix phx.server                                # Start Phoenix server
+iex -S mix phx.server                         # Start with interactive shell
+```
+
+# Database Management
+
+- **Reset Development Databases**:
+    - Use `mix reset.dev` to reset both EventStore and Ecto databases.
+    - Or individually:
+        - `mix ecto.reset` for Ecto database only.
+        - `mix eventstore.reset` for EventStore only.
+
+- **Reset Test Databases**:
+    - Use `mix reset.test` or:
+        - `MIX_ENV=test mix ecto.reset`
+        - `MIX_ENV=test mix eventstore.reset`
