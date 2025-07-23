@@ -98,6 +98,52 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
     end
   end
 
+  describe "create_user/1" do
+    test "Creates new user from valid data" do
+      # Arrange
+      valid_attrs = %{email: "create_user@example.com", password: "secure_password"}
+
+      # Act
+      result = UsersContext.create_user(valid_attrs)
+
+      # Assert
+      assert {:ok, %UserProjection{} = user} = result
+      assert user.email == valid_attrs.email
+      assert is_binary(user.uuid)
+    end
+
+    test "Validates email is unique" do
+      # Arrange - Create first user
+      valid_attrs = %{email: "duplicate@example.com", password: "secure_password"}
+
+      # First creation should succeed
+      {:ok, _user} = UsersContext.create_user(valid_attrs)
+
+      # Act - Try to create another user with same email
+      result = UsersContext.create_user(valid_attrs)
+
+      # Assert
+      assert {:error, :validation_failure, errors} = result
+      assert errors == %{email: ["has already been taken"]}
+    end
+
+    test "Validates password is at least 8 characters" do
+      # Arrange
+      invalid_attrs = %{email: "short_pwd@example.com", password: "short"}
+
+      # Act
+      result = UsersContext.create_user(invalid_attrs)
+
+      # Assert
+      assert {:error, :validation_failure, errors} = result
+      # Extract message from parameterized error
+      assert errors
+             |> Map.get(:password)
+             |> Enum.at(0)
+             |> Keyword.get(:message) == "must be at least 8 characters"
+    end
+  end
+
   describe "reset_password/1" do
     setup do
       cmd_register = %CreateUser{

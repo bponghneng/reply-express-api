@@ -6,6 +6,7 @@ defmodule ReplyExpress.Accounts.UsersContext do
   import Ecto.Query, warn: false
 
   alias ReplyExpress.Accounts.Commands.ClearUserTokens
+  alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Commands.RegisterUser
@@ -67,6 +68,7 @@ defmodule ReplyExpress.Accounts.UsersContext do
         case errors do
           %{user_uuid: ["session token already exists"]} ->
             reset_user_session(login_command)
+
           _ ->
             {:error, :validation_failure, errors}
         end
@@ -121,6 +123,46 @@ defmodule ReplyExpress.Accounts.UsersContext do
       |> RegisterUser.hash_password()
 
     with :ok <- Commanded.dispatch(register_user, consistency: :strong) do
+      case user_by_uuid(uuid) do
+        nil ->
+          {:error, :not_found}
+
+        projection ->
+          {:ok, projection}
+      end
+    end
+  end
+
+  @spec create_user(map()) ::
+          {:ok, UserProjection.t()} | {:error, :validation_failure, map()} | {:error, atom()}
+  @doc """
+  Creates a user with the given attributes.
+
+  This function creates a user without triggering the team creation workflow
+  that happens during registration. It's intended for administrative user creation
+  or simplified user creation scenarios.
+
+  ## Parameters
+    - attrs: A map containing:
+      - email: The user's email address
+      - password: The user's password
+
+  ## Returns
+    - `{:ok, user}` - Returns the created user if successful
+    - `{:error, :validation_failure, errors}` - Returns validation errors if unsuccessful
+    - `{:error, reason}` - Returns other errors that may occur
+  """
+  def create_user(attrs) do
+    uuid = UUID.uuid4()
+
+    create_user =
+      attrs
+      |> CreateUser.new()
+      |> CreateUser.set_uuid(uuid)
+      |> CreateUser.downcase_email()
+      |> CreateUser.hash_password()
+
+    with :ok <- Commanded.dispatch(create_user, consistency: :strong) do
       case user_by_uuid(uuid) do
         nil ->
           {:error, :not_found}
