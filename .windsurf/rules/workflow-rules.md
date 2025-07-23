@@ -91,7 +91,8 @@ Before marking a task complete, use this verification checklist:
 3. **Documentation**:
     - Add appropriate documentation for modules and functions
     - Include @moduledoc and @doc attributes where appropriate
-    - Add @type and @spec definitions for modules and functions
+    - Add @type and @spec definitions for modules and functions that represent public APIs and reusable data structures
+      or that define behaviours
     - Ensure comments are clear and helpful
 
 4. **Functionality**:
@@ -101,12 +102,12 @@ Before marking a task complete, use this verification checklist:
 
 ## Communication Protocol
 
-- **Implementation Progress**: 
+- **Implementation Progress**:
     - Verify with stakeholders after completing each file
     - Clearly communicate the current task state (Not Started, In Progress, Implemented, Verified)
     - Document any challenges or questions that arise during implementation
 
-- **Deviations from Plan**: 
+- **Deviations from Plan**:
     - If implementation needs to differ from the specification, discuss before proceeding
     - Document reasons for deviation and get approval for changes
 

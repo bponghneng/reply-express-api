@@ -48,7 +48,8 @@ mix format              # Format code
 
 ## Architecture Overview
 
-This is a **CQRS/Event Sourcing API** built with Elixir/Phoenix using the Commanded library. The application implements pure event-driven architecture with clear separation between commands (write) and queries (read).
+This is a **CQRS/Event Sourcing API** built with Elixir/Phoenix using the Commanded library. The application implements
+pure event-driven architecture with clear separation between commands (write) and queries (read).
 
 ### Core Patterns
 
@@ -88,12 +89,12 @@ lib/reply_express/accounts/    # Main bounded context
 
 1. **Create Specification**: Add to `/specs/` directory following existing patterns
 2. **Follow CQRS Pattern**:
-   - Command in `commands/`
-   - Events in `events/`
-   - Aggregate logic in `aggregates/`
-   - Projector in `projectors/`
-   - Projection schema in `projections/`
-   - Context function for public API
+    - Command in `commands/`
+    - Events in `events/`
+    - Aggregate logic in `aggregates/`
+    - Projector in `projectors/`
+    - Projection schema in `projections/`
+    - Context function for public API
 3. **Add Controller**: HTTP interface in `lib/reply_express_web/`
 4. **Add Tests**: Mirror lib structure in test directory
 
@@ -179,6 +180,7 @@ end
 ```
 
 **Key Requirements:**
+
 - Use `DataCase` for database access
 - **Method 1:** Call `ProjectorModule.handle(event, metadata)` with correct metadata format
 - **Method 2:** Use telemetry to wait for projections to complete before assertions
@@ -186,6 +188,7 @@ end
 - Verify projections by querying the database directly
 
 **When to Use Each Method:**
+
 - **Method 1:** Unit testing projector logic in isolation
 - **Method 2:** Integration testing with command dispatch and asynchronous event processing
 
@@ -248,14 +251,17 @@ Both databases must be managed separately - use `mix reset.dev` to reset both.
 
 ## Type Specifications
 
-All modules should include comprehensive `@type` specifications. This codebase follows strict typing practices for better documentation and tooling support.
+All modules should include comprehensive `@type` specifications. This codebase follows strict typing practices for
+better documentation and tooling support.
 
 ## Development Guidelines
 
 ### Workflow Rules
 
-- **Planning Phase:** When you say you want to create a plan, I will *only* create or edit a plan file in the `specs/` directory. I will not make any other changes to the codebase until you approve the plan.
-- **Implementation Phase:** When implementing a plan, I will work on one file at a time. After I have written the code for a file, I will verify with you before beginning work on the next file.
+- **Planning Phase:** When you say you want to create a plan, I will *only* create or edit a plan file in the `specs/`
+  directory. I will not make any other changes to the codebase until you approve the plan.
+- **Implementation Phase:** When implementing a plan, I will work on one file at a time. After I have written the code
+  for a file, I will verify with you before beginning work on the next file.
 - **TDD is mandatory.** Write tests *before* implementation. All new features require a spec in `/specs`.
 
 ### Implementation Workflow
@@ -263,33 +269,38 @@ All modules should include comprehensive `@type` specifications. This codebase f
 When implementing features from plans in `/specs`, follow this systematic approach:
 
 #### 1. **Pre-Implementation Analysis**
+
 - Read and understand the complete plan
 - Identify what tests already exist vs. what needs to be created
 - Update the plan with any differences found in existing tests
 - Create a prioritized todo list of all implementation tasks
 
 #### 2. **One-File-at-a-Time Implementation**
+
 - Work on only **one file at a time**
 - For each file:
-  1. **Run the relevant test first** to see current errors and understand requirements
-  2. **Fix test issues** if tests have problems (incorrect setup, wrong expectations, etc.)
-  3. **Implement the file** to make the tests pass
-  4. **Run tests again** to verify implementation works
-  5. **Fix any warnings** (unused variables, duplicate docs, etc.)
-  6. **Update the plan** if implementation details differ from original plan
+    1. **Run the relevant test first** to see current errors and understand requirements
+    2. **Fix test issues** if tests have problems (incorrect setup, wrong expectations, etc.)
+    3. **Implement the file** to make the tests pass
+    4. **Run tests again** to verify implementation works
+    5. **Fix any warnings** (unused variables, duplicate docs, etc.)
+    6. **Update the plan** if implementation details differ from original plan
 
 #### 3. **Test-First Approach**
+
 - Always run tests before implementing to understand what's needed
 - Fix test problems before implementation problems
 - Ensure tests accurately reflect the planned behavior
 - Remove or fix tests that don't align with architecture (e.g., wrong event handling)
 
 #### 4. **Plan Maintenance**
+
 - Update specs when implementation differs from original plan
 - Document architectural decisions made during implementation
 - Keep todo lists updated with progress and new discoveries
 
 #### 5. **Quality Gates**
+
 - All tests must pass before moving to next file
 - All warnings must be resolved
 - Documentation must be updated for any changes
@@ -298,11 +309,13 @@ When implementing features from plans in `/specs`, follow this systematic approa
 
 - **All plans should be stored in the `specs` directory.**
 - **Implement features using a test-driven development (TDD) approach.**
-  - Write the tests first, one file at a time.
-  - Do not write any implementation before tests.
-  - Verify that every test file is correct before writing the next one.
+    - Write the tests first, one file at a time.
+    - Do not write any implementation before tests.
+    - Verify that every test file is correct before writing the next one.
 
 ### Implementation Best Practices
 
-- **When implementing a plan with existing tests, write one file at a time. When the file is written, run the test and fix any errors before continuing to write the next file.**
-- **Typespecs:** All modules and functions must have `@type` and `@spec` definitions.
+- **When implementing a plan with existing tests, write one file at a time. When the file is written, run the test and
+  fix any errors before continuing to write the next file.**
+- **Typespecs:** All modules and functions that represent public APIs and reusable data structures or define
+  behaviours should have `@type` and `@spec` definitions.
