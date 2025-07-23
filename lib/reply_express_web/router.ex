@@ -26,6 +26,8 @@ defmodule ReplyExpressWeb.Router do
     pipe_through [:api]
 
     scope path: "/users", alias: Users do
+      # User management
+      post "/", UserController, :create
       # User authentication
       post "/login", SessionController, :create
       post "/register", RegistrationController, :create

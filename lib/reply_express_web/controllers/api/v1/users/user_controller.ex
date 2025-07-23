@@ -1,4 +1,4 @@
-defmodule ReplyExpressWeb.API.V1.Users.RegistrationController do
+defmodule ReplyExpressWeb.API.V1.Users.UserController do
   use ReplyExpressWeb, :controller
 
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
@@ -7,16 +7,15 @@ defmodule ReplyExpressWeb.API.V1.Users.RegistrationController do
 
   action_fallback ReplyExpressWeb.API.V1.FallbackController
 
-  @spec create(any(), any()) :: {:error, any()} | {:ok, any()} | Plug.Conn.t()
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   @doc """
-  Handles user registration.
+  Handles user creation.
 
-  - If the request body contains a "user" param, attempts to register the user and returns the result.
+  - If the request body contains a "user" param, attempts to create the user and returns the result.
   - If the "user" param is missing or empty, returns a 422 error with a message that "user" is required.
   """
-  def create(conn, %{"user" => user_params})
-      when is_map(user_params) and map_size(user_params) > 0 do
-    result = UsersContext.register_user(user_params)
+  def create(conn, %{"user" => user_params}) when is_map(user_params) do
+    result = UsersContext.create_user(user_params)
 
     with {:ok, %UserProjection{} = user} <- result do
       conn

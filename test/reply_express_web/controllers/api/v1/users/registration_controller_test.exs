@@ -10,7 +10,7 @@ defmodule ReplyExpressWeb.Users.RegistrationControllerTest do
       response =
         context.conn
         |> post(~p"/api/v1/users/register", %{"user" => %{email: email, password: "password1234"}})
-        |> json_response(200)
+        |> json_response(201)
 
       assert response["data"]["email"] == email
     end
