@@ -6,10 +6,10 @@ defmodule ReplyExpress.Accounts.Events.UserRegistered do
   @derive Jason.Encoder
 
   @type t :: %__MODULE__{
-    uuid: String.t(),
-    email: String.t(),
-    hashed_password: String.t()
-  }
+          uuid: String.t(),
+          email: String.t(),
+          hashed_password: String.t()
+        }
 
   defstruct [
     :uuid,

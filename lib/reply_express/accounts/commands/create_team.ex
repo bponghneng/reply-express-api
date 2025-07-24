@@ -7,15 +7,15 @@ defmodule ReplyExpress.Accounts.Commands.CreateTeam do
   use Vex.Struct
 
   @type t :: %__MODULE__{
-    name: String.t(),
-    uuid: String.t(),
-    user_registration_uuid: String.t() | nil
-  }
+          name: String.t(),
+          uuid: String.t(),
+          user_registration_uuid: String.t() | nil
+        }
 
   defstruct [:name, :uuid, :user_registration_uuid]
 
-  validates :name, presence: [message: "can't be empty"]
-  validates :uuid, presence: [message: "can't be empty"]
+  validates(:name, presence: [message: "can't be empty"])
+  validates(:uuid, presence: [message: "can't be empty"])
 
   @doc """
   Sets the name for the team.

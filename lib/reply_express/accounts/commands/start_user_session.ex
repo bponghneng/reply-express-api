@@ -11,13 +11,13 @@ defmodule ReplyExpress.Accounts.Commands.StartUserSession do
   alias ReplyExpress.Accounts.Validators.LoggedInAtNotExpired
 
   @type t :: %__MODULE__{
-    context: String.t(),
-    token: String.t() | nil,
-    logged_in_at: DateTime.t() | nil,
-    user_id: integer() | nil,
-    user_uuid: String.t(),
-    uuid: String.t()
-  }
+          context: String.t(),
+          token: String.t() | nil,
+          logged_in_at: DateTime.t() | nil,
+          user_id: integer() | nil,
+          user_uuid: String.t(),
+          uuid: String.t()
+        }
 
   @rand_size 32
 

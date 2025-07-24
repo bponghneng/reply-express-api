@@ -12,12 +12,12 @@ defmodule ReplyExpress.Accounts.Commands.ResetPassword do
   alias ReplyExpress.Accounts.UserTokensContext
 
   @type t :: %__MODULE__{
-    hashed_password: String.t(),
-    password: String.t(),
-    password_confirmation: String.t(),
-    token: String.t() | nil,
-    uuid: String.t()
-  }
+          hashed_password: String.t(),
+          password: String.t(),
+          password_confirmation: String.t(),
+          token: String.t() | nil,
+          uuid: String.t()
+        }
 
   defstruct hashed_password: "",
             password: "",

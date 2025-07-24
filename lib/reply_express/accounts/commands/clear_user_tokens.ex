@@ -9,8 +9,8 @@ defmodule ReplyExpress.Accounts.Commands.ClearUserTokens do
   alias ReplyExpress.Accounts.Validators.ValidUserUUID
 
   @type t :: %__MODULE__{
-    uuid: String.t()
-  }
+          uuid: String.t()
+        }
 
   defstruct uuid: ""
 
