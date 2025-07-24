@@ -5,8 +5,8 @@ defmodule ReplyExpressWeb.API.V1.TeamsJSON do
   alias ReplyExpress.Accounts.Projections.Team, as: TeamProjection
   alias ReplyExpress.Accounts.Projections.TeamUser, as: TeamUserProjection
 
- @type team_data :: %{uuid: String.t(), name: String.t(), team_users: list()}
- @type team_user_data :: %{uuid: String.t(), email: String.t(), role: String.t()}
+  @type team_data :: %{uuid: String.t(), name: String.t(), team_users: list()}
+  @type team_user_data :: %{uuid: String.t(), email: String.t(), role: String.t()}
 
   @doc """
   Renders a single team's creation details.

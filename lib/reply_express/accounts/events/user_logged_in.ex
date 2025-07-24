@@ -6,10 +6,10 @@ defmodule ReplyExpress.Accounts.Events.UserLoggedIn do
   @derive Jason.Encoder
 
   @type t :: %__MODULE__{
-    email: String.t(),
-    logged_in_at: DateTime.t(),
-    uuid: String.t()
-  }
+          email: String.t(),
+          logged_in_at: DateTime.t(),
+          uuid: String.t()
+        }
 
   defstruct [:email, :logged_in_at, :uuid]
 end

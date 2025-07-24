@@ -29,7 +29,10 @@ defmodule ReplyExpress.Accounts.Commands.AddUserToTeam do
 
   validates(:role,
     presence: [message: "can't be empty"],
-    inclusion: [in: ["admin", "member", "owner"], message: "must be either \"admin,\" \"member\" or \"owner\""]
+    inclusion: [
+      in: ["admin", "member", "owner"],
+      message: "must be either \"admin,\" \"member\" or \"owner\""
+    ]
   )
 
   @doc """

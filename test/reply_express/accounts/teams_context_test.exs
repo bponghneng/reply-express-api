@@ -109,7 +109,12 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       # Wait for team user projection to complete
       assert_receive {:telemetry, [:projector, :team_user], _measurements,
-                      %{event: %ReplyExpress.Accounts.Events.UserAddedToTeam{team_uuid: ^team_uuid, user_uuid: ^user_uuid}}}
+                      %{
+                        event: %ReplyExpress.Accounts.Events.UserAddedToTeam{
+                          team_uuid: ^team_uuid,
+                          user_uuid: ^user_uuid
+                        }
+                      }}
 
       assert %TeamProjection{} = team
       assert team.uuid == team_projection.uuid
@@ -147,7 +152,12 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       # Wait for team user projection to complete
       assert_receive {:telemetry, [:projector, :team_user], _measurements,
-                      %{event: %ReplyExpress.Accounts.Events.UserAddedToTeam{team_uuid: ^team_uuid, user_uuid: ^user_uuid}}}
+                      %{
+                        event: %ReplyExpress.Accounts.Events.UserAddedToTeam{
+                          team_uuid: ^team_uuid,
+                          user_uuid: ^user_uuid
+                        }
+                      }}
 
       assert %TeamProjection{} = team
       assert team.uuid == team_projection.uuid
@@ -191,7 +201,10 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.role == ["can't be empty", "must be either \"admin,\" \"member\" or \"owner\""]
+      assert errors.role == [
+               "can't be empty",
+               "must be either \"admin,\" \"member\" or \"owner\""
+             ]
     end
 
     test "validation failure for invalid role", %{
@@ -245,7 +258,10 @@ defmodule ReplyExpress.Accounts.TeamsContext.Test do
 
       {:error, :validation_failure, errors} = TeamsContext.add_user_to_team(attrs)
 
-      assert errors.role == ["can't be empty", "must be either \"admin,\" \"member\" or \"owner\""]
+      assert errors.role == [
+               "can't be empty",
+               "must be either \"admin,\" \"member\" or \"owner\""
+             ]
     end
   end
 end

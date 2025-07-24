@@ -12,7 +12,7 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
     test "creates a team with user_uuid" do
       team_uuid = UUID.uuid4()
       user_uuid = UUID.uuid4()
-      
+
       command = %CreateTeam{
         uuid: team_uuid,
         name: "Test Team",
@@ -31,7 +31,7 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
     test "prevents creating a team when team already exists" do
       team_uuid = UUID.uuid4()
       user_uuid = UUID.uuid4()
-      
+
       _create_command = %CreateTeam{
         uuid: team_uuid,
         name: "Test Team",
@@ -40,7 +40,7 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
 
       created_event = %TeamCreated{
         uuid: team_uuid,
-        name: "Test Team", 
+        name: "Test Team",
         user_registration_uuid: user_uuid
       }
 
@@ -122,7 +122,6 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
       assert_error([], command, {:error, :team_not_found})
     end
 
-
     test "prevents adding a user who is already a team member" do
       team_uuid = UUID.uuid4()
       user_uuid = UUID.uuid4()
@@ -152,6 +151,5 @@ defmodule ReplyExpress.Accounts.Aggregates.TeamTest do
         {:error, :user_already_member}
       )
     end
-
   end
 end

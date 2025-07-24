@@ -10,12 +10,12 @@ defmodule ReplyExpress.Accounts.Commands.GeneratePasswordResetToken do
   alias ReplyExpress.Accounts.UsersContext
 
   @type t :: %__MODULE__{
-    email: String.t(),
-    token: String.t() | nil,
-    user_id: String.t(),
-    user_uuid: String.t(),
-    uuid: String.t()
-  }
+          email: String.t(),
+          token: String.t() | nil,
+          user_id: String.t(),
+          user_uuid: String.t(),
+          uuid: String.t()
+        }
 
   @rand_size 32
 

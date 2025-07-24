@@ -11,11 +11,11 @@ defmodule ReplyExpress.Accounts.Commands.RegisterUser do
   alias Vex.ErrorRenderers.Parameterized
 
   @type t :: %__MODULE__{
-    email: String.t(),
-    hashed_password: String.t(),
-    password: String.t(),
-    uuid: String.t()
-  }
+          email: String.t(),
+          hashed_password: String.t(),
+          password: String.t(),
+          uuid: String.t()
+        }
 
   defstruct email: "",
             hashed_password: "",
