@@ -87,3 +87,17 @@ config :swoosh, :api_client, false
 # Import dev local env specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "dev.local.exs"
+
+# Configure CQRS
+config :reply_express, ReplyExpress.Commanded,
+  event_store: [
+    adapter: Commanded.EventStore.Adapters.EventStore,
+    event_store: ReplyExpress.EventStore
+  ]
+
+config :commanded, event_store_adapter: Commanded.EventStore.Adapters.EventStore
+
+config :reply_express, ReplyExpress.EventStore,
+  column_data_type: "jsonb",
+  serializer: EventStore.JsonbSerializer,
+  types: EventStore.PostgresTypes
