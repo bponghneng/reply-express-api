@@ -1,0 +1,23 @@
+name: Formatting
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  formatting:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18.4"
+      - name: get dependencies
+        run: mix deps.get
+      - name: check formatting
+        run: mix format --check-formatted

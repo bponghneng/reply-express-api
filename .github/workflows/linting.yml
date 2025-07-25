@@ -1,0 +1,33 @@
+name: Linting
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  credo:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18.4"
+      - name: get dependencies
+        run: mix deps.get
+      - name: compile dependencies
+        run: mix deps.compile
+      - name: compile
+        run: mix compile --warnings-as-errors
+      - name: credo
+        run: mix credo --format=sarif > credo_output.sarif
+      - name: upload sarif
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: credo_output.sarif
