@@ -84,10 +84,6 @@ config :swoosh, :api_client, false
 #  retries: 2,
 #  no_mx_lookups: false
 
-# Import dev local env specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "dev.local.exs"
-
 # Configure CQRS
 config :reply_express, ReplyExpress.Commanded,
   event_store: [
@@ -101,3 +97,9 @@ config :reply_express, ReplyExpress.EventStore,
   column_data_type: "jsonb",
   serializer: EventStore.JsonbSerializer,
   types: EventStore.PostgresTypes
+
+# Import dev local env specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+if File.exists?("dev.local.exs") do
+  import_config "dev.local.exs"
+end
