@@ -25,21 +25,8 @@ config :reply_express, ReplyExpressWeb.Endpoint,
 
 # Configures CQRS
 config :reply_express, ReplyExpress.Commanded,
-  event_store: [
-    adapter: Commanded.EventStore.Adapters.EventStore,
-    event_store: ReplyExpress.EventStore
-  ],
   pub_sub: :local,
   registry: :local
-
-# config :reply_express, ReplyExpress.EventStore, serializer: Commanded.Serialization.JsonSerializer
-
-config :commanded, event_store_adapter: Commanded.EventStore.Adapters.EventStore
-
-config :reply_express, ReplyExpress.EventStore,
-  column_data_type: "jsonb",
-  serializer: EventStore.JsonbSerializer,
-  types: EventStore.PostgresTypes
 
 # Configures the mailer
 #
