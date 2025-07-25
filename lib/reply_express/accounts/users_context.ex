@@ -31,7 +31,15 @@ defmodule ReplyExpress.Accounts.UsersContext do
       |> GeneratePasswordResetToken.build_reset_password_token()
       |> GeneratePasswordResetToken.set_user_properties()
 
-    with :ok <- Commanded.dispatch(send_password_reset_token, consistency: :strong) do
+    clear_user_tokens =
+      send_password_reset_token
+      |> Map.from_struct()
+      |> Map.take([:user_uuid])
+      |> Map.put(:uuid, send_password_reset_token.user_uuid)
+      |> ClearUserTokens.new()
+
+    with :ok <- Commanded.dispatch(clear_user_tokens),
+         :ok <- Commanded.dispatch(send_password_reset_token, consistency: :strong) do
       case UserTokensContext.user_reset_password_token_by_user_uuid(
              send_password_reset_token.user_uuid
            ) do
