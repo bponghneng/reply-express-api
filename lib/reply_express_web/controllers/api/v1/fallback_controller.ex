@@ -2,9 +2,9 @@ defmodule ReplyExpressWeb.API.V1.FallbackController do
   use Phoenix.Controller
 
   alias Ecto.Changeset
-  alias ReplyExpressWeb.API.V1.ErrorJSON
   alias ReplyExpressWeb.API.V1.ChangesetJSON
   alias ReplyExpressWeb.API.V1.CommandValidationErrorJSON
+  alias ReplyExpressWeb.API.V1.ErrorJSON
 
   def call(conn, {:error, :not_found}) do
     conn

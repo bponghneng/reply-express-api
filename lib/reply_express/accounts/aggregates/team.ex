@@ -3,13 +3,13 @@ defmodule ReplyExpress.Accounts.Aggregates.Team do
   Team aggregate that handles team-related commands and emits events.
   """
 
-  alias ReplyExpress.Accounts.Commands.CreateTeam
   alias ReplyExpress.Accounts.Commands.AddUserToTeam
+  alias ReplyExpress.Accounts.Commands.CreateTeam
   alias ReplyExpress.Accounts.Commands.RegisterTeam
   alias ReplyExpress.Accounts.Commands.RegisterUserToTeam
   alias ReplyExpress.Accounts.Events.TeamCreated
-  alias ReplyExpress.Accounts.Events.UserAddedToTeam
   alias ReplyExpress.Accounts.Events.TeamRegistered
+  alias ReplyExpress.Accounts.Events.UserAddedToTeam
   alias ReplyExpress.Accounts.Events.UserRegisteredToTeam
 
   @type t :: %__MODULE__{

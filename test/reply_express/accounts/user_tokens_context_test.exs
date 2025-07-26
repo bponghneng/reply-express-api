@@ -5,8 +5,8 @@ defmodule ReplyExpress.Accounts.UserTokensContextTest do
 
   use ReplyExpress.DataCase
 
-  alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Commands.CreateUser
+  alias ReplyExpress.Accounts.Commands.Login
   alias ReplyExpress.Accounts.Commands.StartUserSession
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection

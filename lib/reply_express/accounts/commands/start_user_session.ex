@@ -7,8 +7,8 @@ defmodule ReplyExpress.Accounts.Commands.StartUserSession do
   use Vex.Struct
 
   alias ReplyExpress.Accounts.Commands.StartUserSession
-  alias ReplyExpress.Accounts.Validators.UniqueSessionToken
   alias ReplyExpress.Accounts.Validators.LoggedInAtNotExpired
+  alias ReplyExpress.Accounts.Validators.UniqueSessionToken
 
   @type t :: %__MODULE__{
           context: String.t(),

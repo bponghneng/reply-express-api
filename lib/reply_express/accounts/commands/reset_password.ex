@@ -8,8 +8,8 @@ defmodule ReplyExpress.Accounts.Commands.ResetPassword do
 
   alias ReplyExpress.Accounts.Commands.ResetPassword
   #  alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
-  alias ReplyExpress.Accounts.Validators.ResetPasswordTokenExists
   alias ReplyExpress.Accounts.UserTokensContext
+  alias ReplyExpress.Accounts.Validators.ResetPasswordTokenExists
 
   @type t :: %__MODULE__{
           hashed_password: String.t(),

@@ -3,8 +3,8 @@ defmodule ReplyExpress.Accounts.UsersContext.Test do
 
   use ReplyExpress.DataCase
 
-  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.CreateUser
+  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.ResetPassword
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
