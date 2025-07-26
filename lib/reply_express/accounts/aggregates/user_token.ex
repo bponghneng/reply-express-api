@@ -29,7 +29,7 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
   @spec execute(
           t(),
           GeneratePasswordResetToken.t() | StartUserSession.t()
-        ) :: PasswordResetTokenGenerated.t() | UserSessionStarted.t()
+        ) :: PasswordResetTokenGenerated.t() | UserSessionStarted.t() | {:error, atom()}
 
   def execute(%__MODULE__{uuid: nil}, %GeneratePasswordResetToken{} = reset_token) do
     %PasswordResetTokenGenerated{
@@ -50,6 +50,8 @@ defmodule ReplyExpress.Accounts.Aggregates.UserToken do
       uuid: user_session.uuid
     }
   end
+
+  def execute(_, _), do: {:error, :invalid_command}
 
   # Mutators
   @spec apply(

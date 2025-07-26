@@ -56,13 +56,10 @@ defmodule ReplyExpress.Accounts.UsersContext do
   Authenticates a user.
   """
   def login(attrs) do
-    login_command =
-      attrs
-      |> Login.new()
-      |> Login.set_logged_in_at()
-      |> Login.set_id_and_uuid()
+    login_command = build_login_command(attrs)
 
     with :ok <- Commanded.dispatch(login_command, consistency: :strong),
+         :ok <- clear_existing_session(login_command),
          :ok <- command_start_user_session(login_command) do
       case UserTokensContext.user_session_token_by_user_uuid(login_command.uuid) do
         nil ->
@@ -71,19 +68,24 @@ defmodule ReplyExpress.Accounts.UsersContext do
         projection ->
           {:ok, projection}
       end
-    else
-      {:error, :validation_failure, errors} when is_map(errors) ->
-        case errors do
-          %{user_uuid: ["session token already exists"]} ->
-            reset_user_session(login_command)
-
-          _ ->
-            {:error, :validation_failure, errors}
-        end
-
-      error ->
-        error
     end
+  end
+
+  defp build_login_command(attrs) do
+    attrs
+    |> Login.new()
+    |> Login.set_logged_in_at()
+    |> Login.set_id_and_uuid()
+  end
+
+  defp clear_existing_session(login_command) do
+    clear_user_tokens =
+      login_command
+      |> Map.from_struct()
+      |> Map.take([:uuid])
+      |> ClearUserTokens.new()
+
+    Commanded.dispatch(clear_user_tokens, consistency: :strong)
   end
 
   defp command_start_user_session(login_command) do
@@ -98,23 +100,6 @@ defmodule ReplyExpress.Accounts.UsersContext do
     |> StartUserSession.set_user_id(login_command.id)
     |> StartUserSession.set_user_uuid(login_command.uuid)
     |> Commanded.dispatch(consistency: :strong)
-  end
-
-  defp reset_user_session(login_command) do
-    clear_user_tokens =
-      login_command
-      |> Map.take([:uuid])
-      |> ClearUserTokens.new()
-
-    with :ok <- Commanded.dispatch(clear_user_tokens, consistency: :strong),
-         :ok <- command_start_user_session(login_command) do
-      login_command.uuid
-      |> UserTokensContext.user_session_token_by_user_uuid()
-      |> case do
-        nil -> {:error, :not_found}
-        projection -> {:ok, projection}
-      end
-    end
   end
 
   @doc """
@@ -142,7 +127,9 @@ defmodule ReplyExpress.Accounts.UsersContext do
   end
 
   @spec create_user(map()) ::
-          {:ok, UserProjection.t()} | {:error, :validation_failure, map()} | {:error, atom()}
+          {:ok, ReplyExpress.Accounts.Projections.User.t()}
+          | {:error, :validation_failure, map()}
+          | {:error, atom()}
   @doc """
   Creates a user with the given attributes.
 
