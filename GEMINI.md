@@ -36,6 +36,8 @@ database directly from a controller.
 
 ## 4. Development Workflow
 
+This project uses [mise](https://mise.jdx.dev/) for managing Elixir and Erlang versions. To run Elixir or Erlang commands, prepend `mise exec --`, for example, `mise exec -- mix test` or `mise exec -- iex -S mix phx.server`.
+
 ### Initial Setup
 
 1. Copy the example config: `cp config/dev.local.example.exs config/dev.local.exs` (and fill in values)

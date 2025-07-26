@@ -1,7 +1,5 @@
 ---
 trigger: always_on
-description: 
-globs: 
 ---
 
 # Local Environment
@@ -9,6 +7,9 @@ globs:
 ## Reference Commands
 
 ### Essential Commands
+
+This project uses [mise](https://mise.jdx.dev/) for managing Elixir and Erlang versions. To run Elixir or Erlang commands, prepend `mise exec --`, for example, `mise exec -- mix test` or `mise exec -- iex -S mix phx.server`.
+
 
 ```bash
 # Testing
@@ -29,7 +30,7 @@ mix phx.server                                # Start Phoenix server
 iex -S mix phx.server                         # Start with interactive shell
 ```
 
-# Database Management
+## Database Management
 
 - **Reset Development Databases**:
     - Use `mix reset.dev` to reset both EventStore and Ecto databases.
