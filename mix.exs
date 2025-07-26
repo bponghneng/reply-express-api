@@ -42,6 +42,7 @@ defmodule ReplyExpress.MixProject do
       {:commanded_eventstore_adapter, "~> 1.4"},
       {:cors_plug, "~> 3.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4.5", only: [:dev], runtime: false},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
       {:elixir_uuid, "~> 1.2"},
@@ -84,7 +85,7 @@ defmodule ReplyExpress.MixProject do
       "eventstore.reset.test": [fn _ -> Mix.env(:test) end, "eventstore.reset"],
       "ecto.reset.test": [fn _ -> Mix.env(:test) end, "ecto.reset"],
       "reset.test": ["eventstore.reset.test", "ecto.reset.test"],
-      setup: ["deps.get", "ecto.setup"],
+      setup: ["deps.get", "ecto.setup", "dialyzer.setup"],
       test: [
         "event_store.create --quiet",
         "event_store.init --quiet",
