@@ -6,8 +6,8 @@ defmodule ReplyExpress.Accounts.Commands.AddUserToTeam do
   use ExConstructor
   use Vex.Struct
 
-  alias ReplyExpress.Accounts.Validators.ValidUserUUID
   alias ReplyExpress.Accounts.Validators.ValidTeamUUID
+  alias ReplyExpress.Accounts.Validators.ValidUserUUID
 
   @type t :: %__MODULE__{
           team_uuid: String.t(),

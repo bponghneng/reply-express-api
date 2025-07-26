@@ -3,8 +3,8 @@ defmodule ReplyExpressWeb.API.V1.Users.ResetPasswordControllerTest do
 
   use ReplyExpressWeb.ConnCase
 
-  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Commands.CreateUser
+  alias ReplyExpress.Accounts.Commands.GeneratePasswordResetToken
   alias ReplyExpress.Accounts.Projections.UserToken, as: UserTokenProjection
   alias ReplyExpress.Commanded
 

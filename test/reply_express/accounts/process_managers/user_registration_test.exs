@@ -6,8 +6,8 @@ defmodule ReplyExpress.Accounts.ProcessManagers.UserRegistrationTest do
   alias ReplyExpress.Accounts.Commands.RegisterTeam
   alias ReplyExpress.Accounts.Commands.RegisterUserToTeam
   alias ReplyExpress.Accounts.Events.TeamRegistered
-  alias ReplyExpress.Accounts.Events.UserRegisteredToTeam
   alias ReplyExpress.Accounts.Events.UserRegistered
+  alias ReplyExpress.Accounts.Events.UserRegisteredToTeam
   alias ReplyExpress.Accounts.ProcessManagers.UserRegistration
 
   describe "interested?/1" do

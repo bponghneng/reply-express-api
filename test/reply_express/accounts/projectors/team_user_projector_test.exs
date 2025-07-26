@@ -6,8 +6,8 @@ defmodule ReplyExpress.Accounts.Projectors.TeamUserProjectorTest do
   alias ReplyExpress.Accounts.Commands.CreateTeam
   alias ReplyExpress.Accounts.Commands.CreateUser
   alias ReplyExpress.Accounts.Events.UserAddedToTeam
-  alias ReplyExpress.Accounts.Projections.TeamUser
   alias ReplyExpress.Accounts.Projections.Team, as: TeamProjection
+  alias ReplyExpress.Accounts.Projections.TeamUser
   alias ReplyExpress.Accounts.Projections.User, as: UserProjection
   alias ReplyExpress.Accounts.Projectors.TeamUser, as: TeamUserProjector
   alias ReplyExpress.Commanded
